@@ -24,7 +24,7 @@ class Viewer(QtGui.QMainWindow):
         table.setHorizontalHeaderLabels(data[0])
         for y, row in enumerate(data[1:]):
             for x, cell in enumerate(row):
-                widget = QtGui.QTableWidgetItem(cell)
+                widget = QtGui.QTableWidgetItem(str(cell))
                 table.setItem(y, x, widget)
 
 
@@ -103,13 +103,17 @@ def process_file(fn, enc=None, dialect=None):
     return data
 
 
-def view(data, **kwargs):
-    app = QtGui.QApplication([])
+def view(data, modal=True, **kwargs):
+    stalone = QtGui.qApp is None
+    if stalone:
+        QtGui.QApplication([])
     view = Viewer(data)
     view.show()
-    app.exec_()
+    if modal or stalone:
+        while view.isVisible():
+            QtGui.QApplication.processEvents()
 
-    
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
