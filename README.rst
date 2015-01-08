@@ -1,7 +1,5 @@
-gtabview
--------------------------------
-a graphical tabular data viewer
-===============================
+gtabview: a simple graphical tabular data viewer
+================================================
 
 Stand-alone usage
 -----------------
