@@ -5,7 +5,6 @@ from __future__ import print_function, unicode_literals
 import io
 import os
 import sys
-import sys
 
 
 # Support PySide/PyQt4 with either Python 2/3
@@ -18,7 +17,7 @@ if sys.version_info.major < 3:
 
 
 class Viewer(QtGui.QMainWindow):
-    def __init__(self, data):
+    def __init__(self, data, start_pos=None):
         super(Viewer, self).__init__()
         if data.__class__.__name__ in ['Series', 'Panel']:
             data = data.to_frame()
@@ -62,6 +61,8 @@ class Viewer(QtGui.QMainWindow):
             for y in range(len(data)):
                 widget = QtGui.QTableWidgetItem(str(data[y]))
                 table.setItem(y, 0, widget)
+        if start_pos:
+            table.setCurrentCell(start_pos[0], start_pos[1])
 
 
 def _detect_encoding(data=None):
@@ -125,7 +126,7 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
     stalone = QtGui.qApp is None
     if stalone:
         QtGui.QApplication([])
-    view = Viewer(data)
+    view = Viewer(data, start_pos)
     view.show()
     if modal or stalone:
         while view.isVisible():
