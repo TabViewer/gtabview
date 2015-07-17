@@ -19,13 +19,40 @@ if sys.version_info.major < 3:
 class Viewer(QtGui.QMainWindow):
     def __init__(self, data):
         super(Viewer, self).__init__()
-        table = QtGui.QTableWidget(len(data) - 1, len(data[0]))
-        self.setCentralWidget(table)
-        table.setHorizontalHeaderLabels(data[0])
-        for y, row in enumerate(data[1:]):
-            for x, cell in enumerate(row):
-                widget = QtGui.QTableWidgetItem(str(cell))
-                table.setItem(y, x, widget)
+        if data.__class__.__name__ in ['Series', 'Panel']:
+            data = data.to_frame()
+        elif isinstance(data, dict):
+            data = [data.keys()] + map(list, zip(*[data[i] for i in data.keys()]))
+        if data.__class__.__name__ == 'DataFrame':
+            table = QtGui.QTableWidget(len(data), len(data.columns))
+            self.setCentralWidget(table)
+            table.setHorizontalHeaderLabels(map(str, data.columns.values))
+            table.setVerticalHeaderLabels(map(str, data.index.values))
+            for x, col in enumerate(data):
+                for y in range(len(data)):
+                    widget = QtGui.QTableWidgetItem(str(data.iat[y, x]))
+                    table.setItem(y, x, widget)
+        elif data.__class__.__name__ == 'ndarray':
+            table = QtGui.QTableWidget(data.shape[0], data.shape[1])
+            self.setCentralWidget(table)
+            table.setHorizontalHeaderLabels(map(str, range(data.shape[1])))
+            table.setVerticalHeaderLabels(map(str, range(data.shape[0])))
+            for x in range(data.shape[1]):
+                for y in range(data.shape[0]):
+                    widget = QtGui.QTableWidgetItem(str(data[y, x]))
+                    table.setItem(y, x, widget)
+        else:
+            rows = max(1, len(data) - 1)
+            cols = len(data[0])
+            table = QtGui.QTableWidget(rows, cols)
+            self.setCentralWidget(table)
+            table.setHorizontalHeaderLabels(data[0] if len(data) > 1 else
+                                            map(str, range(cols)))
+            table.setVerticalHeaderLabels(map(str, range(rows)))
+            for y, row in enumerate(data[1 if len(data) > 1 else 0:]):
+                for x, cell in enumerate(row):
+                    widget = QtGui.QTableWidgetItem(str(cell))
+                    table.setItem(y, x, widget)
 
 
 def csv_sniff(fn, enc):
