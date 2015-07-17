@@ -74,7 +74,6 @@ def _detect_encoding(data=None):
         data - list of lists
     Returns:
         enc - system encoding
-
     """
     import locale
     enc_list = ['utf-8', 'latin-1', 'iso8859-1', 'iso8859-2',
@@ -116,7 +115,7 @@ def _parse_lines(data, enc=None, delimiter=None):
 
 def view(data, modal=True, enc=None, start_pos=(0, 0),
          delimiter=None, hdr_rows=None):
-    # Read data into a regular list of lists
+    # read data into a regular list of lists
     if isinstance(data, basestring):
         with open(data, 'rb') as fd:
             data = _parse_lines(fd.readlines())
@@ -134,7 +133,6 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
 
 
 def _arg_parse():
-    """Parse filename and show help."""
     import argparse
     parser = argparse.ArgumentParser(description="View a tab-delimited file "
                                      "in a spreadsheet-like display. ")
@@ -168,7 +166,6 @@ def _start_position(start_norm, start_classic):
           start_classic - string "+[y]:[x]"
 
     Returns: tuple (y, x)
-
     """
     if start_norm is not None:
         start_pos = start_norm.split(',')[:2]
