@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function, division, unicode_literals
+from __future__ import print_function, unicode_literals
 
-import csv
+import io
+import os
 import sys
-import locale
+import sys
 
 
 # Support PySide/PyQt4 with either Python 2/3
@@ -63,82 +64,64 @@ class Viewer(QtGui.QMainWindow):
                 table.setItem(y, 0, widget)
 
 
-def csv_sniff(fn, enc):
-    """Given a filename or a list of lists, sniff the dialect of the file and
-    return it. This should keep any errors from popping up with tab or comma
-    delimited files.
-
-    Args:
-        fn - complete file path/name or list like
-            ["col1,col2,col3","data1,data2,data3","data1...]
-        enc - python encoding value ('utf_8','latin-1','cp870', etc)
-    Returns:
-        csv.dialect
-
-    """
-    if sys.version_info.major < 3:
-        with open(fn, 'rb') as f:
-            dialect = csv.Sniffer().sniff(f.read(1024 * 8))
-    else:
-        with open(fn, 'r', encoding=enc, newline='') as f:
-            dialect = csv.Sniffer().sniff(f.read(1024 * 8))
-    return dialect
-
-
-def detect_encoding(fn=None):
-    """Return the default system encoding. If a filename is passed, try
-    to decode the file with the default system encoding or from a short
+def _detect_encoding(data=None):
+    """Return the default system encoding. If data is passed, try
+    to decode the data with the default system encoding or from a short
     list of encoding types to test.
 
     Args:
-        fn(optional) - complete path to file
-
+        data - list of lists
     Returns:
         enc - system encoding
 
     """
-    enc_list = ['UTF-8', 'LATIN-1', 'iso8859-1', 'iso8859-2',
-                'UTF-16', 'CP720']
+    import locale
+    enc_list = ['utf-8', 'latin-1', 'iso8859-1', 'iso8859-2',
+                'utf-16', 'cp720']
     code = locale.getpreferredencoding(False)
-    if code not in enc_list:
-        enc_list.insert(0, code)
-    if fn is not None:
-        for c in enc_list:
-            try:
-                with open(fn, 'rb') as f:
-                    f.readline().decode(c)
-            except (UnicodeDecodeError, UnicodeError):
-                continue
-            return c
-        print("Encoding not detected. Please pass encoding value manually")
-    else:
+    if data is None:
         return code
+    if code.lower() not in enc_list:
+        enc_list.insert(0, code.lower())
+    for c in enc_list:
+        try:
+            for line in data:
+                line.decode(c)
+        except (UnicodeDecodeError, UnicodeError, AttributeError):
+            continue
+        return c
+    print("Encoding not detected. Please pass encoding value manually")
 
 
-def process_file(fn, enc=None, dialect=None):
-    """Given a filename, return the file as a list of lists.
-
-    """
+def _parse_lines(data, enc=None, delimiter=None):
+    import csv
     if enc is None:
-        enc = detect_encoding(fn)
-    if dialect is None:
-        dialect = csv_sniff(fn, enc)
-    data = []
+        enc = _detect_encoding(data)
+    if delimiter is None:
+        delimiter = csv.Sniffer().sniff(data[0].decode(enc)).delimiter
+    csv_data = []
     if sys.version_info.major < 3:
-        with open(fn, 'rb') as f:
-            csv_obj = csv.reader(f, dialect=dialect)
-            for row in csv_obj:
-                row = map(lambda x: str(x, enc), row)
-                data.append(row)
+        csv_obj = csv.reader(data, delimiter=delimiter.encode(enc))
+        for row in csv_obj:
+            row = [str(x, enc) for x in row]
+            csv_data.append(row)
     else:
-        with open(fn, 'r', encoding=enc, newline='') as f:
-            csv_obj = csv.reader(f, dialect=dialect)
-            for row in csv_obj:
-                data.append(row)
-    return data
+        data = [i.decode(enc) for i in data]
+        csv_obj = csv.reader(data, delimiter=delim)
+        for row in csv_obj:
+            csv_data.append(row)
+    return csv_data
 
 
-def view(data, modal=True, **kwargs):
+def view(data, modal=True, enc=None, start_pos=(0, 0),
+         delimiter=None, hdr_rows=None):
+    # Read data into a regular list of lists
+    if isinstance(data, basestring):
+        with open(data, 'rb') as fd:
+            data = _parse_lines(fd.readlines())
+    elif isinstance(data, (io.IOBase, file)):
+        data = _parse_lines(data.readlines())
+
     stalone = QtGui.qApp is None
     if stalone:
         QtGui.QApplication([])
@@ -149,15 +132,75 @@ def view(data, modal=True, **kwargs):
             QtGui.QApplication.processEvents()
 
 
-if __name__ == "__main__":
+def _arg_parse():
+    """Parse filename and show help."""
     import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument('filename')
-    ap.add_argument('--encoding', '-e', help="Encoding, if required.  "
-                    "If the file is UTF-8, Latin-1(iso8859-1) or a few "
-                    "other common encodings, it should be detected "
-                    "automatically. If not, you can pass "
-                    "'CP720', or 'iso8859-2', for example.")
-    args = ap.parse_args()
-    data = process_file(args.filename, args.encoding)
-    view(data)
+    parser = argparse.ArgumentParser(description="View a tab-delimited file "
+                                     "in a spreadsheet-like display. ")
+    parser.add_argument('filename', help="File to read. Use '-' to read from "
+                        "the standard input instead.")
+    parser.add_argument('--encoding', '-e', help="Encoding, if required.  "
+                        "If the file is UTF-8, Latin-1(iso8859-1) or a few "
+                        "other common encodings, it should be detected "
+                        "automatically. If not, you can pass "
+                        "'CP720', or 'iso8859-2', for example.")
+    parser.add_argument('--delimiter', '-d', default=None,
+                        help="CSV delimiter. Not typically necessary since "
+                        "automatic delimiter sniffing is used.")
+    parser.add_argument('--header', '-H', default=None, type=int,
+                        help="Set number of header rows (defaults to 1)")
+    parser.add_argument('--start_pos', '-s',
+                        help="Initial cursor display position. "
+                        "Single number for just y (row) position, or two "
+                        "comma-separated numbers (--start_pos 2,3) for both. "
+                        "Alternatively, you can pass the numbers in the more "
+                        "classic +y:[x] format without the --start_pos label. "
+                        "Like 'tabview <fn> +5:10'")
+    return parser.parse_known_args()
+
+
+def _start_position(start_norm, start_classic):
+    """Given a string "[y, x, ...]" or a string "+[y]:[x]", return a tuple (y, x)
+    for the start position
+
+    Args: start_norm - string [y,x, ...]
+          start_classic - string "+[y]:[x]"
+
+    Returns: tuple (y, x)
+
+    """
+    if start_norm is not None:
+        start_pos = start_norm.split(',')[:2]
+        if not start_pos[0]:
+            start_pos[0] = 0
+        start_pos = [int(i) for i in start_pos]
+    elif start_classic:
+        sp = start_classic[0].strip('+').split(':')
+        if not sp[0]:
+            sp[0] = 0
+        try:
+            start_pos = (int(sp[0]), int(sp[1]))
+        except IndexError:
+            start_pos = (int(sp[0]), 0)
+    else:
+        start_pos = (0, 0)
+    return start_pos
+
+
+def _fixup_stdin():
+    print("gtabview: Reading from stdin...", file=sys.stderr)
+    data = os.fdopen(os.dup(0), 'rb')
+    os.dup2(os.open("/dev/tty", os.O_RDONLY), 0)
+    return data
+
+
+if __name__ == '__main__':
+    args, extra = _arg_parse()
+    pos_plus = [i for i in extra if i.startswith('+')]
+    start_pos = _start_position(args.start_pos, pos_plus)
+    if args.filename != '-':
+        data = args.filename
+    else:
+        data = _fixup_stdin()
+    view(data, enc=args.encoding, start_pos=start_pos,
+         delimiter=args.delimiter, hdr_rows=args.header)
