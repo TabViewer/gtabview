@@ -41,7 +41,7 @@ class Viewer(QtGui.QMainWindow):
                 for y in range(data.shape[0]):
                     widget = QtGui.QTableWidgetItem(str(data[y, x]))
                     table.setItem(y, x, widget)
-        else:
+        elif isinstance(data[0], list):
             rows = max(1, len(data) - 1)
             cols = len(data[0])
             table = QtGui.QTableWidget(rows, cols)
@@ -53,6 +53,14 @@ class Viewer(QtGui.QMainWindow):
                 for x, cell in enumerate(row):
                     widget = QtGui.QTableWidgetItem(str(cell))
                     table.setItem(y, x, widget)
+        else:
+            table = QtGui.QTableWidget(len(data), 1)
+            self.setCentralWidget(table)
+            table.setHorizontalHeaderLabels(["list"])
+            table.setVerticalHeaderLabels(map(str, range(len(data))))
+            for y in range(len(data)):
+                widget = QtGui.QTableWidgetItem(str(data[y]))
+                table.setItem(y, 0, widget)
 
 
 def csv_sniff(fn, enc):
