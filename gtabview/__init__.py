@@ -4,16 +4,15 @@
 # Copyright(c) 2014-2015: Scott Hansen <firecat four one five three at gmail dot com>
 # Distributed under the MIT license (see LICENSE) WITHOUT ANY WARRANTY.
 from __future__ import print_function, unicode_literals, absolute_import
-
-import io
-import sys
 import threading
 
-from .viewer import Viewer, str
+from .compat import *
+from .viewer import Viewer
 from .viewer import QtGui, QtCore
 
 # Global Viewer for instance recycling
 VIEWER = None
+APP = None
 
 
 # Helper functions
@@ -72,6 +71,8 @@ def _process_events(widget):
 
 def view(data, modal=True, enc=None, start_pos=(0, 0),
          delimiter=None, hdr_rows=None, recycle=True):
+    global VIEWER, APP
+
     # read data into a regular list of lists
     if isinstance(data, basestring):
         with open(data, 'rb') as fd:
@@ -80,11 +81,10 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
         data = _parse_lines(data.readlines(), enc, delimiter)
 
     # create one application instance if missing
-    if QtGui.qApp is None:
-        QtGui.QApplication([])
+    if QtGui.QApplication.instance() is None:
+        APP = QtGui.QApplication([])
 
     # viewer instance
-    global VIEWER
     if VIEWER is None or recycle is False:
         VIEWER = Viewer()
     view = VIEWER
