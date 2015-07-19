@@ -6,7 +6,6 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 import io
-import os
 import sys
 import threading
 
@@ -60,7 +59,7 @@ def _parse_lines(data, enc=None, delimiter=None):
             csv_data.append(row)
     else:
         data = [i.decode(enc) for i in data]
-        csv_obj = csv.reader(data, delimiter=delim)
+        csv_obj = csv.reader(data, delimiter=delimiter)
         for row in csv_obj:
             csv_data.append(row)
     return csv_data

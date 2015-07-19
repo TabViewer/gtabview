@@ -2,7 +2,6 @@
 from __future__ import print_function, unicode_literals
 
 import sys
-import threading
 
 # Support PySide/PyQt4 with either Python 2/3
 try:
