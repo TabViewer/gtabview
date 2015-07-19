@@ -34,17 +34,14 @@ Usage as a module
     view([['a', 'b', 'c'], [1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
     # view a DataFrame/Series/Panel
-    import pandas.io.data as web
-    import datetime
-    start = datetime.datetime(2010, 1, 1)
-    end = datetime.datetime(2013, 1, 27)
-    panel = web.DataReader(["F", "YHOO"], 'yahoo', start, end)
-    df = panel.loc[:,:,"F"]
+    import pandas as pd
+    df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
+                      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
 
     # numpy is supported as well
-    from numpy import array
-    view(array([[1, 2, 3], [4, 5, 6]]))
+    import numpy as np
+    view(np.array([[1, 2, 3], [4, 5, 6]]))
 
 
 Requirements and installation
