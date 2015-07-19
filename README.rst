@@ -38,7 +38,7 @@ Usage as a module
     import datetime
     start = datetime.datetime(2010, 1, 1)
     end = datetime.datetime(2013, 1, 27)
-    panel = web.DataReader(["F", "YHOO"], 'yahoo', start, end) # Panel
+    panel = web.DataReader(["F", "YHOO"], 'yahoo', start, end)
     df = panel.loc[:,:,"F"]
     view(df)
 
@@ -59,9 +59,15 @@ Under Debian/Ubuntu, install the required dependencies with::
   sudo apt-get install python python-qt4
   sudo apt-get install python-setuptools python-setuptools-git
 
-Install regularly with::
+Then download and install regularly with::
 
+  git clone https://github.com/wavexx/gtabview
+  cd gtabview
   ./setup.py install
+
+You can also install directly via `pip`::
+
+  pip install git+git://github.com/wavexx/gtabview
 
 
 License
