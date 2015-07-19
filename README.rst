@@ -1,10 +1,16 @@
 gtabview: a simple graphical tabular data viewer
 ================================================
 
+A graphical counterpart to `tabview <https://github.com/firecat53/tabview/>`_,
+a simple tabular data viewer that can be used both stand-alone and as a Python
+module for various Python/Pandas/NumPy data structures.
+
+
 Stand-alone usage
 -----------------
 
   ./gtabview.py data.csv
+
 
 Usage as a module
 -----------------
@@ -50,3 +56,11 @@ Requirements
 Under Debian/Ubuntu, install the required dependencies with::
 
   sudo apt-get install python python-qt4
+
+
+License
+-------
+
+| gtabview is distributed under the MIT license (see ``LICENSE.txt``).
+| Copyright(c) 2014-2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+| Copyright(c) 2014-2015: Scott Hansen <firecat four one five three at gmail dot com>

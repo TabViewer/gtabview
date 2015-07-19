@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# gtabview: a simple graphical tabular data viewer
+# Copyright(c) 2014-2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>
+# Copyright(c) 2014-2015: Scott Hansen <firecat four one five three at gmail dot com>
+# Distributed under the MIT license (see LICENSE) WITHOUT ANY WARRANTY.
 from __future__ import print_function, unicode_literals
 
 import io
