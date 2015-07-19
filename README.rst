@@ -39,3 +39,14 @@ Copy ``gtabview.py`` into your ``PYTHONPATH``, then:
     # numpy is supported as well
     from numpy import array
     view(array([[1, 2, 3], [4, 5, 6]]))
+
+
+Requirements
+------------
+
+- Python 2 or Python 3
+- PyQt4 or PySide
+
+Under Debian/Ubuntu, install the required dependencies with::
+
+  sudo apt-get install python python-qt4

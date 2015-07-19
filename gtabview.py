@@ -5,6 +5,7 @@ from __future__ import print_function, unicode_literals
 import io
 import os
 import sys
+import threading
 
 
 # Support PySide/PyQt4 with either Python 2/3
@@ -16,16 +17,31 @@ if sys.version_info.major < 3:
     str = unicode
 
 
+# Global Viewer for instance recycling
+VIEWER = None
+
+
 class Viewer(QtGui.QMainWindow):
-    def __init__(self, data, start_pos=None):
+    def __init__(self, *args, **kwargs):
         super(Viewer, self).__init__()
+        self.table = QtGui.QTableWidget()
+        self.setCentralWidget(self.table)
+        self.table.setEditTriggers(QtGui.QTableWidget.EditTrigger.NoEditTriggers)
+        if args or kwargs:
+            self.view(*args, **kwargs)
+
+    def view(self, data, start_pos=None):
+        table = self.table
+        table.clear()
+
         if data.__class__.__name__ in ['Series', 'Panel']:
             data = data.to_frame()
         elif isinstance(data, dict):
             data = [data.keys()] + map(list, zip(*[data[i] for i in data.keys()]))
+
         if data.__class__.__name__ == 'DataFrame':
-            table = QtGui.QTableWidget(len(data), len(data.columns))
-            self.setCentralWidget(table)
+            table.setRowCount(len(data))
+            table.setColumnCount(len(data.columns))
             table.setHorizontalHeaderLabels(map(str, data.columns.values))
             table.setVerticalHeaderLabels(map(str, data.index.values))
             for x, col in enumerate(data):
@@ -33,8 +49,8 @@ class Viewer(QtGui.QMainWindow):
                     widget = QtGui.QTableWidgetItem(str(data.iat[y, x]))
                     table.setItem(y, x, widget)
         elif data.__class__.__name__ == 'ndarray':
-            table = QtGui.QTableWidget(data.shape[0], data.shape[1])
-            self.setCentralWidget(table)
+            table.setRowCount(data.shape[0])
+            table.setColumnCount(data.shape[1])
             table.setHorizontalHeaderLabels(map(str, range(data.shape[1])))
             table.setVerticalHeaderLabels(map(str, range(data.shape[0])))
             for x in range(data.shape[1]):
@@ -44,8 +60,8 @@ class Viewer(QtGui.QMainWindow):
         elif isinstance(data[0], list):
             rows = max(1, len(data) - 1)
             cols = len(data[0])
-            table = QtGui.QTableWidget(rows, cols)
-            self.setCentralWidget(table)
+            table.setRowCount(rows)
+            table.setColumnCount(cols)
             table.setHorizontalHeaderLabels(data[0] if len(data) > 1 else
                                             map(str, range(cols)))
             table.setVerticalHeaderLabels(map(str, range(rows)))
@@ -54,13 +70,15 @@ class Viewer(QtGui.QMainWindow):
                     widget = QtGui.QTableWidgetItem(str(cell))
                     table.setItem(y, x, widget)
         else:
-            table = QtGui.QTableWidget(len(data), 1)
-            self.setCentralWidget(table)
+            table.setRowCount(len(data))
+            table.setColumnCount(1)
             table.setHorizontalHeaderLabels(["list"])
             table.setVerticalHeaderLabels(map(str, range(len(data))))
             for y in range(len(data)):
                 widget = QtGui.QTableWidgetItem(str(data[y]))
                 table.setItem(y, 0, widget)
+
+        table.resizeColumnsToContents()
         if start_pos:
             table.setCurrentCell(start_pos[0], start_pos[1])
 
@@ -113,8 +131,13 @@ def _parse_lines(data, enc=None, delimiter=None):
     return csv_data
 
 
+def _process_events(widget):
+    while widget.isVisible():
+        QtGui.QApplication.processEvents()
+
+
 def view(data, modal=True, enc=None, start_pos=(0, 0),
-         delimiter=None, hdr_rows=None):
+         delimiter=None, hdr_rows=None, recycle=True):
     # read data into a regular list of lists
     if isinstance(data, basestring):
         with open(data, 'rb') as fd:
@@ -122,14 +145,32 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
     elif isinstance(data, (io.IOBase, file)):
         data = _parse_lines(data.readlines())
 
-    stalone = QtGui.qApp is None
-    if stalone:
+    # create one application instance if missing
+    if QtGui.qApp is None:
         QtGui.QApplication([])
-    view = Viewer(data, start_pos)
-    view.show()
-    if modal or stalone:
-        while view.isVisible():
-            QtGui.QApplication.processEvents()
+
+    # viewer instance
+    global VIEWER
+    if VIEWER is None or recycle is False:
+        VIEWER = Viewer()
+    view = VIEWER
+    view.view(data, start_pos)
+
+    # run the application loop
+    if modal:
+        view.setWindowModality(QtCore.Qt.ApplicationModal)
+        view.show()
+        _process_events(view)
+    else:
+        view.setWindowModality(QtCore.Qt.NonModal)
+        view.show()
+        # we might have more than a single processing/thread loop active
+        # (depending whether we're being used as a stand-alone app or a module
+        # with a QtApp host), but simply, each loop is going to proceed in
+        # lock-step until it's view is closed.
+        thread = threading.Thread(target=_process_events, args=(view,))
+        thread.start()
+        return view
 
 
 def _arg_parse():
