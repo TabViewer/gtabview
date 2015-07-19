@@ -9,7 +9,7 @@ import io
 import sys
 import threading
 
-from .viewer import Viewer
+from .viewer import Viewer, str
 from .viewer import QtGui, QtCore
 
 # Global Viewer for instance recycling
@@ -55,7 +55,7 @@ def _parse_lines(data, enc=None, delimiter=None):
     if sys.version_info.major < 3:
         csv_obj = csv.reader(data, delimiter=delimiter.encode(enc))
         for row in csv_obj:
-            row = [str(x, enc) for x in row]
+            row = [x.decode(enc) for x in row]
             csv_data.append(row)
     else:
         data = [i.decode(enc) for i in data]
@@ -75,9 +75,9 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
     # read data into a regular list of lists
     if isinstance(data, basestring):
         with open(data, 'rb') as fd:
-            data = _parse_lines(fd.readlines())
+            data = _parse_lines(fd.readlines(), enc, delimiter)
     elif isinstance(data, (io.IOBase, file)):
-        data = _parse_lines(data.readlines())
+        data = _parse_lines(data.readlines(), enc, delimiter)
 
     # create one application instance if missing
     if QtGui.qApp is None:
@@ -88,7 +88,7 @@ def view(data, modal=True, enc=None, start_pos=(0, 0),
     if VIEWER is None or recycle is False:
         VIEWER = Viewer()
     view = VIEWER
-    view.view(data, start_pos)
+    view.view(data, hdr_rows, start_pos)
 
     # run the application loop
     if modal:

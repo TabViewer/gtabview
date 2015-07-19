@@ -21,7 +21,7 @@ class Viewer(QtGui.QMainWindow):
         if args or kwargs:
             self.view(*args, **kwargs)
 
-    def view(self, data, start_pos=None):
+    def view(self, data, hdr_rows=None, start_pos=None):
         table = self.table
         table.clear()
         table.setSortingEnabled(False)
@@ -51,14 +51,16 @@ class Viewer(QtGui.QMainWindow):
                     widget = QtGui.QTableWidgetItem(str(data[y, x]))
                     table.setItem(y, x, widget)
         elif isinstance(data[0], list):
-            rows = max(1, len(data) - 1)
-            cols = len(data[0])
+            if hdr_rows is None:
+                hdr_rows = 1 if len(data) > 1 else 0
+            rows = max(1, len(data) - hdr_rows)
+            cols = max(1, len(data[0]))
             table.setRowCount(rows)
             table.setColumnCount(cols)
-            table.setHorizontalHeaderLabels(data[0] if len(data) > 1 else
+            table.setHorizontalHeaderLabels(data[0] if hdr_rows else \
                                             map(str, range(cols)))
             table.setVerticalHeaderLabels(map(str, range(rows)))
-            for y, row in enumerate(data[1 if len(data) > 1 else 0:]):
+            for y, row in enumerate(data[hdr_rows:]):
                 for x, cell in enumerate(row):
                     widget = QtGui.QTableWidgetItem(str(cell))
                     table.setItem(y, x, widget)
