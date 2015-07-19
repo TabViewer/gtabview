@@ -9,13 +9,13 @@ module for various Python/Pandas/NumPy data structures.
 Stand-alone usage
 -----------------
 
-  ./gtabview.py data.csv
+`gtabview` reads most tabular data formats automatically::
+
+  gtabview data.csv
 
 
 Usage as a module
 -----------------
-
-Copy ``gtabview.py`` into your ``PYTHONPATH``, then:
 
 .. code:: python
 
@@ -24,7 +24,7 @@ Copy ``gtabview.py`` into your ``PYTHONPATH``, then:
     # view a file
     view("/path/to/file")
 
-    # view a vector
+    # view a list
     view([1, 2, 3])
 
     # view a dict (by columns)
@@ -47,15 +47,21 @@ Copy ``gtabview.py`` into your ``PYTHONPATH``, then:
     view(array([[1, 2, 3], [4, 5, 6]]))
 
 
-Requirements
-------------
+Requirements and installation
+-----------------------------
 
 - Python 2 or Python 3
 - PyQt4 or PySide
+- setuptools and setuptools-git (install-only).
 
 Under Debian/Ubuntu, install the required dependencies with::
 
   sudo apt-get install python python-qt4
+  sudo apt-get install python-setuptools python-setuptools-git
+
+Install regularly with::
+
+  ./setup.py install
 
 
 License
