@@ -33,6 +33,8 @@ class Viewer(QtGui.QMainWindow):
     def view(self, data, start_pos=None):
         table = self.table
         table.clear()
+        table.setSortingEnabled(False)
+        table.sortItems(-1)
 
         if data.__class__.__name__ in ['Series', 'Panel']:
             data = data.to_frame()
@@ -79,6 +81,7 @@ class Viewer(QtGui.QMainWindow):
                 table.setItem(y, 0, widget)
 
         table.resizeColumnsToContents()
+        table.setSortingEnabled(True)
         if start_pos:
             table.setCurrentCell(start_pos[0], start_pos[1])
 
