@@ -2,11 +2,11 @@
 from __future__ import print_function, unicode_literals, absolute_import, generators
 from .compat import *
 
-# Support PySide/PyQt4 with either Python 2/3
+# Support PyQt4/PySide with either Python 2/3
 try:
-    from PySide import QtCore, QtGui
-except ImportError:
     from PyQt4 import QtCore, QtGui
+except ImportError:
+    from PySide import QtCore, QtGui
 
 
 class Viewer(QtGui.QMainWindow):
