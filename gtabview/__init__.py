@@ -4,15 +4,22 @@
 # Copyright(c) 2014-2015: Scott Hansen <firecat four one five three at gmail dot com>
 # Distributed under the MIT license (see LICENSE) WITHOUT ANY WARRANTY.
 from __future__ import print_function, unicode_literals, absolute_import
+import atexit
 import threading
+import warnings
 
 from .compat import *
 from .viewer import Viewer
 from .viewer import QtGui, QtCore
 
-# Global Viewer for instance recycling
-VIEWER = None
-APP = None
+
+# view defaults
+WAIT = False
+RECYCLE = True
+DETACH = False
+
+# Global ViewControler for instance recycling
+VIEW = None
 
 
 # Helper functions
@@ -64,49 +71,114 @@ def _parse_lines(data, enc=None, delimiter=None):
     return csv_data
 
 
-def _process_events(widget):
-    while widget.isVisible():
-        QtGui.QApplication.processEvents()
+class ViewController(object):
+    def __init__(self):
+        super(ViewController, self).__init__()
+        self._view = None
+
+    def view(self, data, start_pos, hdr_rows, wait, recycle):
+        app = QtGui.QApplication.instance()
+        if app is None:
+            app = QtGui.QApplication([])
+        if self._view is None or not recycle:
+            self._view = Viewer()
+        self._view.view(data, start_pos=start_pos, hdr_rows=hdr_rows)
+        if wait:
+            while self._view.isVisible():
+                app.processEvents(QtCore.QEventLoop.AllEvents |
+                                  QtCore.QEventLoop.WaitForMoreEvents)
 
 
-def view(data, modal=True, enc=None, start_pos=(0, 0),
-         delimiter=None, hdr_rows=None, recycle=True):
-    global VIEWER, APP
+class DetachedViewController(threading.Thread):
+    def __init__(self):
+        super(DetachedViewController, self).__init__()
+        self._view = None
+        self._data = None
+        self._lock = threading.Lock()
+        self._cond = threading.Condition()
+        self._lock.acquire()
 
-    # read data into a regular list of lists
+    def is_detached(self):
+        with self._lock:
+            return super(DetachedViewController, self).is_alive()
+
+    def run(self):
+        app = QtGui.QApplication.instance()
+        if app is None:
+            app = QtGui.QApplication([])
+        else:
+            warnings.warn("cannot detach: QApplication already initialized",
+                          category=RuntimeWarning)
+            self._lock.release()
+            return
+        self._view = Viewer()
+        self._lock.release()
+        while True:
+            with self._lock:
+                if self._data == False:
+                    return
+                elif self._data is not None:
+                    if not self._data['recycle']:
+                        self._view = Viewer()
+                    self._view.view(self._data['data'], **self._data['kwargs'])
+                    self._data = None
+            with self._cond:
+                app.processEvents(QtCore.QEventLoop.AllEvents |
+                                  QtCore.QEventLoop.WaitForMoreEvents)
+                self._cond.notify()
+
+    def _notify(self):
+        app = QtGui.QApplication.instance()
+        app.postEvent(self._view, QtCore.QEvent(QtCore.QEvent.None))
+
+    def exit(self):
+        with self._lock:
+            self._data = False
+            self._notify()
+        self.join()
+
+    def view(self, data, start_pos, hdr_rows, wait, recycle):
+        with self._lock:
+            kwargs = {'start_pos': start_pos, 'hdr_rows': hdr_rows}
+            self._data = {'data': data, 'recycle': recycle, 'kwargs': kwargs}
+            self._notify()
+        if wait:
+            with self._cond:
+                while not self._view.closed:
+                    self._cond.wait()
+
+
+def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
+         wait=None, recycle=None, detach=None):
+    # TODO: check if MPL was already included, and derive wait/detach
+    #       appropriately with the rcParam['interactive'] setting
+    if wait is None: wait = WAIT
+    if recycle is None: recycle = RECYCLE
+    if detach is None: detach = DETACH
+
+    # read the file into a regular list of lists
     if isinstance(data, basestring):
         with open(data, 'rb') as fd:
             data = _parse_lines(fd.readlines(), enc, delimiter)
     elif isinstance(data, (io.IOBase, file)):
         data = _parse_lines(data.readlines(), enc, delimiter)
 
-    # create one application instance if missing
-    if QtGui.QApplication.instance() is None:
-        APP = QtGui.QApplication([])
-
-    # viewer instance
-    if VIEWER is None or recycle is False:
-        VIEWER = Viewer()
-    view = VIEWER
-    view.view(data, hdr_rows, start_pos)
-
-    # run the application loop
-    if modal:
-        view.setWindowModality(QtCore.Qt.ApplicationModal)
-        view.show()
-        _process_events(view)
-    else:
-        view.setWindowModality(QtCore.Qt.NonModal)
-        if view.isVisible():
-            # recycle the previous loop handler
-            pass
+    # create a view controller
+    global VIEW
+    if VIEW is None:
+        if not detach:
+            VIEW = ViewController()
         else:
-            view.show()
-            # we might have more than a single processing/thread loop active
-            # (depending whether we're being used as a stand-alone app or a module
-            # with a QtApp host), but simply, each loop is going to proceed in
-            # lock-step until it's view is closed.
-            thread = threading.Thread(target=_process_events, args=(view,))
-            thread.start()
-        return view
+            VIEW = DetachedViewController()
+            VIEW.setDaemon(True)
+            VIEW.start()
+            if VIEW.is_detached():
+                atexit.register(VIEW.exit)
+            else:
+                VIEW = None
+                return None
 
+    # actually show the data
+    VIEW.view(data, wait=wait, start_pos=start_pos,
+              hdr_rows=hdr_rows, recycle=recycle)
+    return VIEW

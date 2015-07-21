@@ -117,8 +117,12 @@ class Viewer(QtGui.QMainWindow):
         self.table = QtGui.QTableView()
         self.setCentralWidget(self.table)
         self.table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.closed = False
         if args or kwargs:
             self.view(*args, **kwargs)
+
+    def closeEvent(self, event):
+        self.closed = True
 
     def view(self, data, hdr_rows=None, start_pos=None):
         table = self.table
@@ -147,3 +151,7 @@ class Viewer(QtGui.QMainWindow):
         if start_pos:
             index = model.index(start_pos[0], start_pos[1])
             table.selectionModel().select(index, QtGui.QItemSelectionModel.ClearAndSelect)
+
+        self.showNormal()
+        self.setWindowState(QtCore.Qt.WindowActive)
+        self.closed = False
