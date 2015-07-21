@@ -9,10 +9,112 @@ except ImportError:
     from PySide import QtCore, QtGui
 
 
+class ListModel(QtCore.QAbstractTableModel):
+    def __init__(self, data, hdr_rows=None):
+        super(ListModel, self).__init__()
+        if hdr_rows is None:
+            hdr_rows = 1 if len(data) > 1 else 0
+        self.hdr_rows = hdr_rows
+        self.rows = max(1, len(data) - hdr_rows)
+        self.cols = max(1, len(data[0]))
+        self.data = data
+
+    def rowCount(self, index=None):
+        return self.rows
+
+    def columnCount(self, index=None):
+        return self.cols
+
+    def headerData(self, section, orientation, role):
+        if role != QtCore.Qt.DisplayRole:
+            return None
+        if orientation == QtCore.Qt.Horizontal and self.hdr_rows:
+            return self.data[0][section]
+        else:
+            return section
+
+    def data(self, index, role):
+        if role != QtCore.Qt.DisplayRole or not index.isValid():
+            return None
+        return str(self.data[self.hdr_rows + index.row()][index.column()])
+
+
+class VectorModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(VectorModel, self).__init__()
+        self.data = data
+
+    def rowCount(self, index=None):
+        return len(self.data)
+
+    def columnCount(self, index=None):
+        return 1
+
+    def headerData(self, section, orientation, role):
+        if role != QtCore.Qt.DisplayRole:
+            return None
+        if orientation == QtCore.Qt.Horizontal:
+            return "[vector]"
+        else:
+            return section
+
+    def data(self, index, role):
+        if role != QtCore.Qt.DisplayRole or not index.isValid():
+            return None
+        return str(self.data[index.row()])
+
+
+class MatrixModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(MatrixModel, self).__init__()
+        self.data = data
+
+    def rowCount(self, index=None):
+        return self.data.shape[0]
+
+    def columnCount(self, index=None):
+        return self.data.shape[1]
+
+    def headerData(self, section, orientation, role):
+        if role != QtCore.Qt.DisplayRole:
+            return None
+        return section
+
+    def data(self, index, role):
+        if role != QtCore.Qt.DisplayRole or not index.isValid():
+            return None
+        return str(self.data[index.row(), index.column()])
+
+
+class FrameModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(FrameModel, self).__init__()
+        self.data = data
+
+    def rowCount(self, index=None):
+        return self.data.shape[0]
+
+    def columnCount(self, index=None):
+        return self.data.shape[1]
+
+    def headerData(self, section, orientation, role):
+        if role != QtCore.Qt.DisplayRole:
+            return None
+        if orientation == QtCore.Qt.Horizontal:
+            return str(self.data.columns.values[section])
+        else:
+            return str(self.data.index.values[section])
+
+    def data(self, index, role):
+        if role != QtCore.Qt.DisplayRole or not index.isValid():
+            return None
+        return str(self.data.iat[index.row(), index.column()])
+
+
 class Viewer(QtGui.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Viewer, self).__init__()
-        self.table = QtGui.QTableWidget()
+        self.table = QtGui.QTableView()
         self.setCentralWidget(self.table)
         self.table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
         if args or kwargs:
@@ -20,58 +122,28 @@ class Viewer(QtGui.QMainWindow):
 
     def view(self, data, hdr_rows=None, start_pos=None):
         table = self.table
-        table.clear()
-        table.setSortingEnabled(False)
-        table.sortItems(-1)
 
+        # TODO: add specific data models to reduce overhead
         if data.__class__.__name__ in ['Series', 'Panel']:
             data = data.to_frame()
         elif isinstance(data, dict):
             data = [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
 
         if data.__class__.__name__ == 'DataFrame':
-            table.setRowCount(len(data))
-            table.setColumnCount(len(data.columns))
-            table.setHorizontalHeaderLabels(list(map(str, data.columns.values)))
-            table.setVerticalHeaderLabels(list(map(str, data.index.values)))
-            for x, col in enumerate(data):
-                for y in range(len(data)):
-                    widget = QtGui.QTableWidgetItem(str(data.iat[y, x]))
-                    table.setItem(y, x, widget)
+            table.setModel(FrameModel(data))
         elif data.__class__.__name__ == 'ndarray':
-            table.setRowCount(data.shape[0])
-            table.setColumnCount(data.shape[1])
-            table.setHorizontalHeaderLabels(list(map(str, range(data.shape[1]))))
-            table.setVerticalHeaderLabels(list(map(str, range(data.shape[0]))))
-            for x in range(data.shape[1]):
-                for y in range(data.shape[0]):
-                    widget = QtGui.QTableWidgetItem(str(data[y, x]))
-                    table.setItem(y, x, widget)
+            table.setModel(MatrixModel(data))
         elif isinstance(data[0], list):
-            if hdr_rows is None:
-                hdr_rows = 1 if len(data) > 1 else 0
-            rows = max(1, len(data) - hdr_rows)
-            cols = max(1, len(data[0]))
-            table.setRowCount(rows)
-            table.setColumnCount(cols)
-            table.setHorizontalHeaderLabels(data[0] if hdr_rows else \
-                                            list(map(str, range(cols))))
-            table.setVerticalHeaderLabels(list(map(str, range(rows))))
-            for y, row in enumerate(data[hdr_rows:]):
-                for x, cell in enumerate(row):
-                    widget = QtGui.QTableWidgetItem(str(cell))
-                    table.setItem(y, x, widget)
+            table.setModel(ListModel(data, hdr_rows))
         else:
-            table.setRowCount(len(data))
-            table.setColumnCount(1)
-            table.setHorizontalHeaderLabels(["list"])
-            table.setVerticalHeaderLabels(list(map(str, range(len(data)))))
-            for y in range(len(data)):
-                widget = QtGui.QTableWidgetItem(str(data[y]))
-                table.setItem(y, 0, widget)
+            table.setModel(VectorModel(data))
 
-        table.resizeColumnsToContents()
-        table.setSortingEnabled(True)
+        model = table.model()
+        self.setWindowTitle("{} rows, {} columns".format(model.rowCount(), model.columnCount()))
+        if model.rowCount() * model.columnCount() < 1e5:
+            # resizing materializes the contents and might actually take longer
+            # than loading all the data itself, so do it for small tables only
+            table.resizeColumnsToContents()
         if start_pos:
-            table.setCurrentCell(start_pos[0], start_pos[1])
-
+            index = model.index(start_pos[0], start_pos[1])
+            table.selectionModel().select(index, QtGui.QItemSelectionModel.ClearAndSelect)
