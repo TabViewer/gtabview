@@ -96,8 +96,7 @@ class DetachedViewController(threading.Thread):
         super(DetachedViewController, self).__init__()
         self._view = None
         self._data = None
-        self._lock = threading.Lock()
-        self._cond = threading.Condition()
+        self._lock = threading.Condition(threading.Lock())
         self._lock.acquire()
 
     def is_detached(self):
@@ -123,10 +122,10 @@ class DetachedViewController(threading.Thread):
                         self._view = Viewer()
                     self._view.view(self._data['data'], **self._data['kwargs'])
                     self._data = None
-            with self._cond:
-                app.processEvents(QtCore.QEventLoop.AllEvents |
-                                  QtCore.QEventLoop.WaitForMoreEvents)
-                self._cond.notify()
+            app.processEvents(QtCore.QEventLoop.AllEvents |
+                              QtCore.QEventLoop.WaitForMoreEvents)
+            with self._lock:
+                self._lock.notify()
 
     def _notify(self):
         app = QtGui.QApplication.instance()
@@ -144,9 +143,9 @@ class DetachedViewController(threading.Thread):
             self._data = {'data': data, 'recycle': recycle, 'kwargs': kwargs}
             self._notify()
         if wait:
-            with self._cond:
+            with self._lock:
                 while not self._view.closed:
-                    self._cond.wait()
+                    self._lock.wait()
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
