@@ -4,7 +4,9 @@
 # Copyright(c) 2014-2015: Scott Hansen <firecat four one five three at gmail dot com>
 # Distributed under the MIT license (see LICENSE) WITHOUT ANY WARRANTY.
 from __future__ import print_function, unicode_literals, absolute_import
+
 import atexit
+import sys
 import threading
 import warnings
 
@@ -14,9 +16,9 @@ from .viewer import QtGui, QtCore
 
 
 # view defaults
-WAIT = False
-RECYCLE = True
-DETACH = False
+WAIT = None     # When None, use matplotlib.is_interactive (if already imported)
+RECYCLE = True  # Keep reusing the same window instead of creating new ones
+DETACH = False  # Create a fully autonomous GUI thread
 
 # Global ViewControler for instance recycling
 VIEW = None
@@ -150,11 +152,18 @@ class DetachedViewController(threading.Thread):
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          wait=None, recycle=None, detach=None):
-    # TODO: check if MPL was already included, and derive wait/detach
-    #       appropriately with the rcParam['interactive'] setting
+    global WAIT, RECYCLE, DETACH, VIEW
+
+    # setup values
     if wait is None: wait = WAIT
     if recycle is None: recycle = RECYCLE
     if detach is None: detach = DETACH
+    if wait is None:
+        if 'matplotlib' in sys.modules:
+            import matplotlib
+            wait = not matplotlib.is_interactive()
+        else:
+            wait = not bool(detach)
 
     # read the file into a regular list of lists
     if isinstance(data, basestring):
@@ -164,7 +173,6 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
         data = _parse_lines(data.readlines(), enc, delimiter)
 
     # create a view controller
-    global VIEW
     if VIEW is None:
         if not detach:
             VIEW = ViewController()
