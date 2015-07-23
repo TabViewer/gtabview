@@ -152,7 +152,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          wait=None, recycle=None, detach=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
-    # setup values
+    # setup defaults
     if wait is None: wait = WAIT
     if recycle is None: recycle = RECYCLE
     if detach is None: detach = DETACH
@@ -162,8 +162,6 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
         else:
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
-            # force GUI to initialize in matplotlib
-            plt.close(plt.figure())
 
     # read the file into a regular list of lists
     if isinstance(data, basestring):
@@ -190,3 +188,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     VIEW.view(data, wait=wait, start_pos=start_pos,
               hdr_rows=hdr_rows, recycle=recycle)
     return VIEW
+
+
+# force matplotlib GUI to initialize
+if 'matplotlib' in sys.modules:
+    import matplotlib.pyplot as plt
+    plt.close(plt.figure())
