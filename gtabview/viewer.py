@@ -241,7 +241,7 @@ class Viewer(QtGui.QMainWindow):
 
         model = table.model()
         shape = model.shape()
-        self.setWindowTitle("{} rows, {} columns".format(shape[1], shape[0]))
+        self.setWindowTitle("{} rows, {} columns".format(shape[0], shape[1]))
         if shape[0] * shape[1] < 1e5:
             # resizing materializes the contents and might actually take longer
             # than loading all the data itself, so do it for small tables only
