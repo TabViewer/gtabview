@@ -28,10 +28,11 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
 
 
 class Header4ExtModel(QtCore.QAbstractTableModel):
-    def __init__(self, model, axis):
+    def __init__(self, model, axis, palette):
         super(Header4ExtModel, self).__init__()
         self.model = model
         self.axis = axis
+        self._palette = palette
 
     def rowCount(self, index=None):
         return self.model.shape()[0] if self.axis == 1 \
@@ -51,11 +52,7 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.BackgroundRole:
             prev = self.model.header(self.axis, col - 1, row) if col else None
             cur = self.model.header(self.axis, col, row)
-            if prev != cur:
-                # TODO: this should use the system palette
-                return QtGui.QBrush(QtCore.Qt.gray)
-            else:
-                return None
+            return self._palette.midlight() if prev != cur else None
         if role != QtCore.Qt.DisplayRole or not index.isValid():
             return None
         return str(self.model.header(self.axis, col, row))
@@ -170,12 +167,12 @@ class ExtTableView(QtGui.QWidget):
         sel_model.selectionChanged.connect(
             lambda *_: self._select_rows(self.table_data, self.table_index))
 
-        self.table_header.setModel(Header4ExtModel(model, 0))
+        self.table_header.setModel(Header4ExtModel(model, 0, self.palette()))
         sel_model = self.table_header.selectionModel()
         sel_model.selectionChanged.connect(
             lambda *_: self._select_columns(self.table_header, self.table_data))
 
-        self.table_index.setModel(Header4ExtModel(model, 1))
+        self.table_index.setModel(Header4ExtModel(model, 1, self.palette()))
         sel_model = self.table_index.selectionModel()
         sel_model.selectionChanged.connect(
             lambda *_: self._select_rows(self.table_index, self.table_data))
