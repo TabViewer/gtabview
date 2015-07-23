@@ -73,6 +73,27 @@ def _parse_lines(data, enc=None, delimiter=None):
     return csv_data
 
 
+def _read_file(fd_or_path, enc, delimiter, hdr_rows):
+    # read into a list of lists
+    if isinstance(fd_or_path, basestring):
+        with open(fd_or_path, 'rb') as fd:
+            data = _parse_lines(fd.readlines(), enc, delimiter)
+    else:
+        data = _parse_lines(fd_or_path.readlines(), enc, delimiter)
+
+    # skip an empty line after the header
+    if hdr_rows and len(data) > hdr_rows + 1:
+        empty = True
+        for col in data[hdr_rows]:
+            if len(col):
+                empty = False
+                break
+        if empty:
+            del data[hdr_rows]
+
+    return data
+
+
 class ViewController(object):
     def __init__(self):
         super(ViewController, self).__init__()
@@ -164,11 +185,8 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
             wait = not plt.isinteractive()
 
     # read the file into a regular list of lists
-    if isinstance(data, basestring):
-        with open(data, 'rb') as fd:
-            data = _parse_lines(fd.readlines(), enc, delimiter)
-    elif isinstance(data, (io.IOBase, file)):
-        data = _parse_lines(data.readlines(), enc, delimiter)
+    if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
+        data = _read_file(data, enc, delimiter, hdr_rows)
 
     # create a view controller
     if VIEW is None:
