@@ -129,7 +129,7 @@ class DetachedViewController(threading.Thread):
 
     def _notify(self):
         app = QtGui.QApplication.instance()
-        app.postEvent(self._view, QtCore.QEvent(QtCore.QEvent.None))
+        app.postEvent(self._view, QtCore.QEvent(0))
 
     def exit(self):
         with self._lock:
