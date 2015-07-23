@@ -43,6 +43,14 @@ Usage as a module
     import numpy as np
     view(np.array([[1, 2, 3], [4, 5, 6]]))
 
+If you're using gtabview with matplotlib either directly or indirectly (for
+example, using the Pandas visualization API or Seaborn), be sure to include
+matplotlib first to correctly initialize gtabview.
+
+gtabview will also use matplotlib's ``interactive`` setting to determine the
+default behavior of the data window: when interactive, calls to ``view()`` will
+not block by default, and will keep recycling the same window.
+
 
 Requirements and installation
 -----------------------------
