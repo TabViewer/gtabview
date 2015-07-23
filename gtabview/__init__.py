@@ -157,11 +157,13 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     if recycle is None: recycle = RECYCLE
     if detach is None: detach = DETACH
     if wait is None:
-        if 'matplotlib' in sys.modules:
-            import matplotlib
-            wait = not matplotlib.is_interactive()
-        else:
+        if 'matplotlib' not in sys.modules:
             wait = not bool(detach)
+        else:
+            import matplotlib.pyplot as plt
+            wait = not plt.isinteractive()
+            # force GUI to initialize in matplotlib
+            plt.close(plt.figure())
 
     # read the file into a regular list of lists
     if isinstance(data, basestring):
