@@ -18,12 +18,14 @@ class ExtDataModel(object):
 
 
 class ExtListModel(ExtDataModel):
-    def __init__(self, data, hdr_rows=None):
+    def __init__(self, data, hdr_rows=None, idx_cols=None):
         super(ExtListModel, self).__init__()
         if hdr_rows is None:
             hdr_rows = 1 if len(data) > 1 else 0
-        self._header_shape = (hdr_rows, 0)
-        self._shape = (len(data) - hdr_rows, len(data[0]))
+        if idx_cols is None:
+            idx_cols = 0
+        self._header_shape = (hdr_rows, idx_cols)
+        self._shape = (len(data) - hdr_rows, len(data[0]) - idx_cols)
         self._data = data
 
     def shape(self):
@@ -33,10 +35,13 @@ class ExtListModel(ExtDataModel):
         return self._header_shape
 
     def header(self, axis, x, level):
-        return self._data[level][x]
+        if axis == 0:
+            return self._data[level][x + self._header_shape[1]]
+        else:
+            return self._data[x + self._header_shape[0]][level]
 
     def data(self, y, x):
-        return self._data[y + self._header_shape[0]][x]
+        return self._data[y + self._header_shape[0]][x + self._header_shape[1]]
 
 
 class ExtVectorModel(ExtDataModel):

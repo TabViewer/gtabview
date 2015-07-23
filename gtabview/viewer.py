@@ -216,7 +216,7 @@ class Viewer(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.closed = True
 
-    def view(self, data, hdr_rows=None, start_pos=None):
+    def view(self, data, hdr_rows=None, idx_cols=None, start_pos=None):
         table = self.table
 
         # TODO: add specific data models to reduce overhead
@@ -230,7 +230,7 @@ class Viewer(QtGui.QMainWindow):
         elif data.__class__.__name__ == 'ndarray':
             table.setModel(ExtMatrixModel(data))
         elif isinstance(data[0], list):
-            table.setModel(ExtListModel(data, hdr_rows))
+            table.setModel(ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols))
         else:
             table.setModel(ExtVectorModel(data))
 

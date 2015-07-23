@@ -78,13 +78,13 @@ class ViewController(object):
         super(ViewController, self).__init__()
         self._view = None
 
-    def view(self, data, start_pos, hdr_rows, wait, recycle):
+    def view(self, data, hdr_rows, idx_cols, start_pos, wait, recycle):
         app = QtGui.QApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
         if self._view is None or not recycle:
             self._view = Viewer()
-        self._view.view(data, start_pos=start_pos, hdr_rows=hdr_rows)
+        self._view.view(data, hdr_rows=hdr_rows, idx_cols=idx_cols, start_pos=start_pos)
         if wait:
             while self._view.isVisible():
                 app.processEvents(QtCore.QEventLoop.AllEvents |
@@ -137,9 +137,9 @@ class DetachedViewController(threading.Thread):
             self._notify()
         self.join()
 
-    def view(self, data, start_pos, hdr_rows, wait, recycle):
+    def view(self, data, hdr_rows, idx_cols, start_pos, wait, recycle):
         with self._lock:
-            kwargs = {'start_pos': start_pos, 'hdr_rows': hdr_rows}
+            kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols, 'start_pos': start_pos}
             self._data = {'data': data, 'recycle': recycle, 'kwargs': kwargs}
             self._notify()
         if wait:
@@ -149,7 +149,7 @@ class DetachedViewController(threading.Thread):
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
-         wait=None, recycle=None, detach=None):
+         idx_cols=None, wait=None, recycle=None, detach=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
     # setup defaults
@@ -185,8 +185,8 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                 return None
 
     # actually show the data
-    VIEW.view(data, wait=wait, start_pos=start_pos,
-              hdr_rows=hdr_rows, recycle=recycle)
+    VIEW.view(data, wait=wait, hdr_rows=hdr_rows, idx_cols=idx_cols,
+              start_pos=start_pos, recycle=recycle)
     return VIEW
 
 
