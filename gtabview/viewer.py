@@ -198,9 +198,14 @@ class ExtTableView(QtGui.QWidget):
         self._update_layout()
 
     def resizeColumnsToContents(self):
-        self.table_data.resizeColumnsToContents()
         for col in range(self._model.shape()[1]):
-            self.table_header.setColumnWidth(col, self.table_data.columnWidth(col))
+            hdr_width = self.table_header.sizeHintForColumn(col)
+            data_width = self.table_data.sizeHintForColumn(col)
+            if data_width > hdr_width or hdr_width > data_width * 2:
+                width = data_width
+            else:
+                width = hdr_width
+            self.table_header.setColumnWidth(col, width)
         self.resizeIndexToContents()
 
 
