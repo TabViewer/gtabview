@@ -108,7 +108,12 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
         data = read_table(data, enc, delimiter, hdr_rows)
+
     model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
+    if model is None:
+        warnings.warn("cannot visualize the supplied data type",
+                      category=RuntimeWarning)
+        return None
 
     # setup defaults
     if wait is None: wait = WAIT

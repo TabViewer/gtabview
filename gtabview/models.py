@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
+
 from .compat import *
+import collections
 
 
 class ExtDataModel(object):
@@ -84,7 +86,7 @@ class ExtFrameModel(ExtDataModel):
 
     def _axis_levels(self, axis):
         ax = self._axis(axis)
-        return 1 if getattr(ax, 'levels', None) is None \
+        return 1 if not hasattr(ax, 'levels') \
             else len(ax.levels)
 
     def shape(self):
@@ -98,7 +100,7 @@ class ExtFrameModel(ExtDataModel):
 
     def header(self, axis, x, level=0):
         ax = self._axis(axis)
-        return str(ax.values[x]) if getattr(ax, 'levels', None) is None \
+        return str(ax.values[x]) if not hasattr(ax, 'levels') \
             else str(ax.values[x][level])
 
 
@@ -116,9 +118,10 @@ def as_model(data, hdr_rows=None, idx_cols=None):
         return ExtFrameModel(data)
     elif data.__class__.__name__ == 'ndarray':
         return ExtMatrixModel(data)
-    elif isinstance(data[0], list):
+    elif isinstance(data, collections.Sequence) and \
+         isinstance(data[0], collections.Sequence):
         return ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
-    else:
+    elif isinstance(data, collections.Sequence):
         return ExtVectorModel(data)
 
     return None
