@@ -6,6 +6,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 import atexit
+import inspect
 import io
 import sys
 import threading
@@ -32,13 +33,14 @@ class ViewController(object):
         super(ViewController, self).__init__()
         self._view = None
 
-    def view(self, data, hdr_rows, idx_cols, start_pos, wait, recycle):
+    def view(self, data, hdr_rows, idx_cols, start_pos, metavar, title, wait, recycle):
         app = QtGui.QApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
         if self._view is None or not recycle:
             self._view = Viewer()
-        self._view.view(data, hdr_rows=hdr_rows, idx_cols=idx_cols, start_pos=start_pos)
+        self._view.view(data, hdr_rows=hdr_rows, idx_cols=idx_cols, start_pos=start_pos,
+                        metavar=metavar, title=title)
         if wait:
             while self._view.isVisible():
                 app.processEvents(QtCore.QEventLoop.AllEvents |
@@ -91,9 +93,10 @@ class DetachedViewController(threading.Thread):
             self._notify()
         self.join()
 
-    def view(self, data, hdr_rows, idx_cols, start_pos, wait, recycle):
+    def view(self, data, hdr_rows, idx_cols, start_pos, metavar, title, wait, recycle):
         with self._lock:
-            kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols, 'start_pos': start_pos}
+            kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols, 'start_pos': start_pos,
+                      'metavar': metavar, 'title': title}
             self._data = {'data': data, 'recycle': recycle, 'kwargs': kwargs}
             self._notify()
         if wait:
@@ -102,8 +105,21 @@ class DetachedViewController(threading.Thread):
                     self._lock.wait()
 
 
+def _varname_in_stack(var, skip):
+    frame = inspect.currentframe().f_back
+    while skip:
+        frame = frame.f_back
+        if not frame: return None
+        skip -= 1
+    for name in frame.f_locals:
+        if frame.f_locals[name] is var:
+            return name
+    return None
+
+
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
-         idx_cols=None, sheet_index=0, wait=None, recycle=None, detach=None):
+         idx_cols=None, sheet_index=0, wait=None, recycle=None, detach=None,
+         metavar=None, title=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
     # if data is a file/path, read it
@@ -127,6 +143,13 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
 
+    # try to fetch the variable name in the upper stack
+    if metavar is None:
+        if isinstance(data, basestring):
+            metavar = data
+        else:
+            metavar = _varname_in_stack(data, 1)
+
     # create a view controller
     if VIEW is None:
         if not detach:
@@ -142,8 +165,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                 return None
 
     # actually show the data
-    VIEW.view(model, wait=wait, hdr_rows=hdr_rows, idx_cols=idx_cols,
-              start_pos=start_pos, recycle=recycle)
+    VIEW.view(model, hdr_rows=hdr_rows, idx_cols=idx_cols,
+              start_pos=start_pos, wait=wait, recycle=recycle,
+              metavar=metavar, title=title)
     return VIEW
 
 

@@ -231,10 +231,19 @@ class Viewer(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.closed = True
 
-    def view(self, model, hdr_rows=None, idx_cols=None, start_pos=None):
+    def view(self, model, hdr_rows=None, idx_cols=None,
+             start_pos=None, metavar=None, title=None):
         self.table.setModel(model)
         shape = model.shape()
-        self.setWindowTitle("{} rows, {} columns".format(shape[0], shape[1]))
+
+        if title is not None:
+            self.setWindowTitle(title)
+        else:
+            title = "{} rows, {} columns".format(shape[0], shape[1])
+            if metavar:
+                title = "{}: {}".format(metavar, title)
+            self.setWindowTitle(title)
+
         if shape[0] * shape[1] < 1e5:
             # resizing materializes the contents and might actually take longer
             # than loading all the data itself, so do it for small tables only
