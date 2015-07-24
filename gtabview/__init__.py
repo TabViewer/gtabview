@@ -33,14 +33,13 @@ class ViewController(object):
         super(ViewController, self).__init__()
         self._view = None
 
-    def view(self, data, hdr_rows, idx_cols, start_pos, metavar, title, wait, recycle):
+    def view(self, data, view_kwargs, wait, recycle):
         app = QtGui.QApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
         if self._view is None or not recycle:
             self._view = Viewer()
-        self._view.view(data, hdr_rows=hdr_rows, idx_cols=idx_cols, start_pos=start_pos,
-                        metavar=metavar, title=title)
+        self._view.view(data, **view_kwargs)
         if wait:
             while self._view.isVisible():
                 app.processEvents(QtCore.QEventLoop.AllEvents |
@@ -76,7 +75,7 @@ class DetachedViewController(threading.Thread):
                 elif self._data is not None:
                     if not self._data['recycle']:
                         self._view = Viewer()
-                    self._view.view(self._data['data'], **self._data['kwargs'])
+                    self._view.view(self._data['data'], **self._data['view_kwargs'])
                     self._data = None
             app.processEvents(QtCore.QEventLoop.AllEvents |
                               QtCore.QEventLoop.WaitForMoreEvents)
@@ -93,11 +92,10 @@ class DetachedViewController(threading.Thread):
             self._notify()
         self.join()
 
-    def view(self, data, hdr_rows, idx_cols, start_pos, metavar, title, wait, recycle):
+    def view(self, data, view_kwargs, wait, recycle):
         with self._lock:
-            kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols, 'start_pos': start_pos,
-                      'metavar': metavar, 'title': title}
-            self._data = {'data': data, 'recycle': recycle, 'kwargs': kwargs}
+            self._data = {'data': data, 'recycle': recycle,
+                          'view_kwargs': view_kwargs}
             self._notify()
         if wait:
             with self._lock:
@@ -165,9 +163,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                 return None
 
     # actually show the data
-    VIEW.view(model, hdr_rows=hdr_rows, idx_cols=idx_cols,
-              start_pos=start_pos, wait=wait, recycle=recycle,
-              metavar=metavar, title=title)
+    view_kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols,
+                   'start_pos': start_pos, 'metavar': metavar, 'title': title}
+    VIEW.view(model, view_kwargs, wait=wait, recycle=recycle)
     return VIEW
 
 
