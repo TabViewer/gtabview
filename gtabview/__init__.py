@@ -111,7 +111,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
 
     model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
     if model is None:
-        warnings.warn("cannot visualize the supplied data type",
+        warnings.warn("cannot visualize the supplied data type: {}".format(type(data)),
                       category=RuntimeWarning)
         return None
 
