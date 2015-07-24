@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
 from .compat import *
-from .models import *
 
 # Support PyQt4/PySide with either Python 2/3
 try:
