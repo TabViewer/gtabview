@@ -100,3 +100,25 @@ class ExtFrameModel(ExtDataModel):
         ax = self._axis(axis)
         return str(ax.values[x]) if getattr(ax, 'levels', None) is None \
             else str(ax.values[x][level])
+
+
+def as_model(data, hdr_rows=None, idx_cols=None):
+    if isinstance(data, ExtDataModel):
+        return data
+
+    # TODO: add specific data models to reduce overhead
+    if data.__class__.__name__ in ['Series', 'Panel']:
+        data = data.to_frame()
+    elif isinstance(data, dict):
+        data = [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
+
+    if data.__class__.__name__ == 'DataFrame':
+        return ExtFrameModel(data)
+    elif data.__class__.__name__ == 'ndarray':
+        return ExtMatrixModel(data)
+    elif isinstance(data[0], list):
+        return ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
+    else:
+        return ExtVectorModel(data)
+
+    return None

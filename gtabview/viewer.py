@@ -221,39 +221,22 @@ class Viewer(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.closed = True
 
-    def view(self, data, hdr_rows=None, idx_cols=None, start_pos=None):
-        table = self.table
-
-        # TODO: add specific data models to reduce overhead
-        if data.__class__.__name__ in ['Series', 'Panel']:
-            data = data.to_frame()
-        elif isinstance(data, dict):
-            data = [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
-
-        if data.__class__.__name__ == 'DataFrame':
-            table.setModel(ExtFrameModel(data))
-        elif data.__class__.__name__ == 'ndarray':
-            table.setModel(ExtMatrixModel(data))
-        elif isinstance(data[0], list):
-            table.setModel(ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols))
-        else:
-            table.setModel(ExtVectorModel(data))
-
-        model = table.model()
+    def view(self, model, hdr_rows=None, idx_cols=None, start_pos=None):
+        self.table.setModel(model)
         shape = model.shape()
         self.setWindowTitle("{} rows, {} columns".format(shape[0], shape[1]))
         if shape[0] * shape[1] < 1e5:
             # resizing materializes the contents and might actually take longer
             # than loading all the data itself, so do it for small tables only
-            table.resizeColumnsToContents()
+            self.table.resizeColumnsToContents()
         elif model.header_shape()[1] * shape[0] < 1e5:
             # similarly for the index, although we still do some more effort
             # due to fact that we cannot resize it (yet)
-            table.resizeIndexToContents()
+            self.table.resizeIndexToContents()
 
-        table.setFocus()
+        self.table.setFocus()
         if start_pos:
-            table.setCurrentIndex(start_pos[0], start_pos[1])
+            self.table.setCurrentIndex(start_pos[0], start_pos[1])
 
         self.showNormal()
         self.setWindowState(QtCore.Qt.WindowActive)

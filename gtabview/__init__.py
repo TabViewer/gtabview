@@ -12,6 +12,7 @@ import warnings
 
 from .compat import *
 from .dataio import read_table
+from .models import as_model
 from .viewer import QtGui, QtCore
 from .viewer import Viewer
 
@@ -104,6 +105,11 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          idx_cols=None, wait=None, recycle=None, detach=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
+    # if data is a file/path, read it
+    if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
+        data = read_table(data, enc, delimiter, hdr_rows)
+    model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
+
     # setup defaults
     if wait is None: wait = WAIT
     if recycle is None: recycle = RECYCLE
@@ -114,10 +120,6 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
         else:
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
-
-    # if data is a file/path, read it
-    if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        data = read_table(data, enc, delimiter, hdr_rows)
 
     # create a view controller
     if VIEW is None:
@@ -134,7 +136,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                 return None
 
     # actually show the data
-    VIEW.view(data, wait=wait, hdr_rows=hdr_rows, idx_cols=idx_cols,
+    VIEW.view(model, wait=wait, hdr_rows=hdr_rows, idx_cols=idx_cols,
               start_pos=start_pos, recycle=recycle)
     return VIEW
 
