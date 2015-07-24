@@ -11,8 +11,9 @@ import threading
 import warnings
 
 from .compat import *
-from .viewer import Viewer
+from .dataio import read_table
 from .viewer import QtGui, QtCore
+from .viewer import Viewer
 
 
 # view defaults
@@ -22,76 +23,6 @@ DETACH = False  # Create a fully autonomous GUI thread
 
 # Global ViewControler for instance recycling
 VIEW = None
-
-
-# Helper functions
-def _detect_encoding(data=None):
-    """Return the default system encoding. If data is passed, try
-    to decode the data with the default system encoding or from a short
-    list of encoding types to test.
-
-    Args:
-        data - list of lists
-    Returns:
-        enc - system encoding
-    """
-    import locale
-    enc_list = ['utf-8', 'latin-1', 'iso8859-1', 'iso8859-2',
-                'utf-16', 'cp720']
-    code = locale.getpreferredencoding(False)
-    if data is None:
-        return code
-    if code.lower() not in enc_list:
-        enc_list.insert(0, code.lower())
-    for c in enc_list:
-        try:
-            for line in data:
-                line.decode(c)
-        except (UnicodeDecodeError, UnicodeError, AttributeError):
-            continue
-        return c
-    print("Encoding not detected. Please pass encoding value manually")
-
-
-def _parse_lines(data, enc=None, delimiter=None):
-    import csv
-    if enc is None:
-        enc = _detect_encoding(data)
-    if delimiter is None:
-        delimiter = csv.Sniffer().sniff(data[0].decode(enc)).delimiter
-    csv_data = []
-    if sys.version_info.major < 3:
-        csv_obj = csv.reader(data, delimiter=delimiter.encode(enc))
-        for row in csv_obj:
-            row = [x.decode(enc) for x in row]
-            csv_data.append(row)
-    else:
-        data = [i.decode(enc) for i in data]
-        csv_obj = csv.reader(data, delimiter=delimiter)
-        for row in csv_obj:
-            csv_data.append(row)
-    return csv_data
-
-
-def _read_file(fd_or_path, enc, delimiter, hdr_rows):
-    # read into a list of lists
-    if isinstance(fd_or_path, basestring):
-        with open(fd_or_path, 'rb') as fd:
-            data = _parse_lines(fd.readlines(), enc, delimiter)
-    else:
-        data = _parse_lines(fd_or_path.readlines(), enc, delimiter)
-
-    # skip an empty line after the header
-    if hdr_rows and len(data) > hdr_rows + 1:
-        empty = True
-        for col in data[hdr_rows]:
-            if len(col):
-                empty = False
-                break
-        if empty:
-            del data[hdr_rows]
-
-    return data
 
 
 class ViewController(object):
@@ -184,9 +115,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
 
-    # read the file into a regular list of lists
+    # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        data = _read_file(data, enc, delimiter, hdr_rows)
+        data = read_table(data, enc, delimiter, hdr_rows)
 
     # create a view controller
     if VIEW is None:
