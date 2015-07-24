@@ -6,6 +6,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 import atexit
+import io
 import sys
 import threading
 import warnings
