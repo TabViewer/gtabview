@@ -89,14 +89,17 @@ def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
     # chop a leading '#' in the headers
     if hdr_rows and len(data) >= hdr_rows:
         for row in range(hdr_rows):
-            if len(data[row]) and len(data[row][0]) and data[row][0][0] == '#':
+            if len(data[row]) \
+               and isinstance(data[row][0], basestring) \
+               and len(data[row][0]) > 1 \
+               and data[row][0][0] == '#':
                 data[0][0] = data[0][0][1:]
 
     # skip an empty line after the header
     if hdr_rows and len(data) > hdr_rows + 1:
         empty = True
         for col in data[hdr_rows]:
-            if len(col):
+            if col is not None and len(str(col)):
                 empty = False
                 break
         if empty:
