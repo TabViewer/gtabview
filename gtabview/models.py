@@ -5,6 +5,13 @@ from .compat import *
 import collections
 
 
+def getitem(lst, idx, default=None):
+    return lst[idx] if idx < len(lst) else default
+
+def getitem2(lst, y, x, default=None):
+    return getitem(getitem(lst, y, []), x, default)
+
+
 class ExtDataModel(object):
     def shape(self):
         pass
@@ -38,12 +45,13 @@ class ExtListModel(ExtDataModel):
 
     def header(self, axis, x, level):
         if axis == 0:
-            return self._data[level][x + self._header_shape[1]]
+            return getitem2(self._data, level, x + self._header_shape[1], '')
         else:
-            return self._data[x + self._header_shape[0]][level]
+            return getitem2(self._data, x + self._header_shape[0], level, '')
 
     def data(self, y, x):
-        return self._data[y + self._header_shape[0]][x + self._header_shape[1]]
+        return getitem2(self._data, y + self._header_shape[0],
+                        x + self._header_shape[1], '')
 
 
 class ExtVectorModel(ExtDataModel):
