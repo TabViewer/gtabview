@@ -36,7 +36,7 @@ Usage as a module
     # view a DataFrame/Series/Panel
     import pandas as pd
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
-                      columns=['a', 'b', 'c'], index=['x', 'y'])
+		      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
 
     # numpy is supported as well
@@ -49,7 +49,7 @@ matplotlib first to correctly initialize gtabview.
 
 gtabview will also use matplotlib's ``interactive`` setting to determine the
 default behavior of the data window: when interactive, calls to ``view()`` will
-not block by default, and will keep recycling the same window.
+not block, and will keep recycling the same window.
 
 
 Requirements and installation
@@ -73,6 +73,14 @@ Then download and install regularly with::
 You can also install directly via `pip`::
 
   pip install git+git://github.com/wavexx/gtabview
+
+Excel files are supported if the ``xlrd`` module is also installed::
+
+  sudo apt-get install python-xlrd
+
+or::
+
+  pip install xlrd
 
 
 License

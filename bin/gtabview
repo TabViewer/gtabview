@@ -28,6 +28,8 @@ def arg_parse():
                         help="Set number of header rows (defaults to 1)")
     parser.add_argument('--index', '-I', default=None, type=int,
                         help="Set number of index columns (defaults to 0)")
+    parser.add_argument('--sheet', '-S', default=None, type=int,
+                        help="Set the sheet index to read (defaults to 0)")
     parser.add_argument('--start_pos', '-s',
                         help="Initial cursor display position. "
                         "Single number for just y (row) position, or two "
@@ -83,4 +85,4 @@ if __name__ == '__main__':
 
     from gtabview import view
     view(data, enc=args.encoding, start_pos=start_pos, delimiter=args.delimiter,
-         hdr_rows=args.header, idx_cols=args.index)
+         hdr_rows=args.header, idx_cols=args.index, sheet_index=args.sheet)

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import
 
+import os
 import sys
-import csv
 
 from .compat import *
 
@@ -36,6 +36,7 @@ def _detect_encoding(data=None):
 
 
 def _parse_lines(data, enc=None, delimiter=None):
+    import csv
     if enc is None:
         enc = _detect_encoding(data)
     if delimiter is None:
@@ -54,13 +55,33 @@ def _parse_lines(data, enc=None, delimiter=None):
     return csv_data
 
 
-def read_table(fd_or_path, enc, delimiter, hdr_rows):
+
+def read_csv(fd_or_path, enc, delimiter, hdr_rows):
+    if isinstance(fd_or_path, basestring):
+        fd_or_path = open(fd_or_path, 'rb')
+    return _parse_lines(fd_or_path.readlines(), enc, delimiter)
+
+
+def read_xlrd(path, sheet_index):
+    import xlrd
+    wb = xlrd.open_workbook(path, on_demand=True, ragged_rows=True)
+    sheet = wb.sheet_by_index(sheet_index)
+    return [sheet.row_values(row) for row in range(sheet.nrows)]
+
+
+def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
+    data = None
+
     # read into a list of lists
     if isinstance(fd_or_path, basestring):
-        with open(fd_or_path, 'rb') as fd:
-            data = _parse_lines(fd.readlines(), enc, delimiter)
-    else:
-        data = _parse_lines(fd_or_path.readlines(), enc, delimiter)
+        _, ext = os.path.splitext(fd_or_path)
+        if ext.lower() in ['.xls', '.xlsx']:
+            try:
+                data = read_xlrd(fd_or_path, sheet_index)
+            except ImportError:
+                pass
+    if data is None:
+        data = read_csv(fd_or_path, enc, delimiter, hdr_rows)
 
     if hdr_rows is None and len(data) > 1:
         hdr_rows = 1

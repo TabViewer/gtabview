@@ -102,12 +102,12 @@ class DetachedViewController(threading.Thread):
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
-         idx_cols=None, wait=None, recycle=None, detach=None):
+         idx_cols=None, sheet_index=None, wait=None, recycle=None, detach=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
     # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        data = read_table(data, enc, delimiter, hdr_rows)
+        data = read_table(data, enc, delimiter, hdr_rows, sheet_index)
 
     model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
     if model is None:
