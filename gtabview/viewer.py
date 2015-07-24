@@ -64,6 +64,16 @@ class ExtTableView(QtGui.QWidget):
         self._selection_rec = False
         self._model = None
 
+        # We manually set the inactive highlight color to differentiate the
+        # selection between the data/index/header. To actually make use of the
+        # palette though, we also have to manually assign a new stock delegate
+        # to each table view
+        palette = self.palette()
+        palette.setBrush(QtGui.QPalette.Inactive,
+                         QtGui.QPalette.Highlight,
+                         self.palette().windowText())
+        self.setPalette(palette)
+
         layout = QtGui.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -81,6 +91,7 @@ class ExtTableView(QtGui.QWidget):
         self.table_header.setFrameStyle(QtGui.QFrame.Plain)
         self.table_header.setSelectionMode(QtGui.QTableView.ContiguousSelection)
         self.table_header.horizontalHeader().sectionResized.connect(self._column_resized)
+        self.table_header.setItemDelegate(QtGui.QItemDelegate())
         layout.addWidget(self.table_header, 0, 1)
 
         self.table_index = QtGui.QTableView()
@@ -93,6 +104,7 @@ class ExtTableView(QtGui.QWidget):
         self.table_index.setFrameStyle(QtGui.QFrame.Plain)
         self.table_index.setSelectionMode(QtGui.QTableView.ContiguousSelection)
         self.table_index.verticalHeader().sectionResized.connect(self._row_resized)
+        self.table_index.setItemDelegate(QtGui.QItemDelegate())
         layout.addWidget(self.table_index, 1, 0)
 
         self.table_data = QtGui.QTableView()
@@ -107,7 +119,9 @@ class ExtTableView(QtGui.QWidget):
         self.table_data.setVerticalScrollBar(self.vscroll)
         self.table_data.setFrameStyle(QtGui.QFrame.Plain)
         self.table_data.setSelectionMode(QtGui.QTableView.ContiguousSelection)
+        self.table_data.setItemDelegate(QtGui.QItemDelegate())
         layout.addWidget(self.table_data, 1, 1)
+        self.setFocusProxy(self.table_data)
 
         layout.addWidget(self.hscroll, 2, 0, 2, 2)
         layout.addWidget(self.vscroll, 0, 2, 2, 2)
@@ -184,9 +198,6 @@ class ExtTableView(QtGui.QWidget):
         # needs to be called after setting all table models
         self._update_layout()
 
-
-    def setFocus(self):
-        self.table_data.setFocus()
 
     def setCurrentIndex(self, y, x):
         self.table_data.selectionModel().setCurrentIndex(
