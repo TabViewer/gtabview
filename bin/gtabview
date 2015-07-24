@@ -28,7 +28,7 @@ def arg_parse():
                         help="Set number of header rows (defaults to 1)")
     parser.add_argument('--index', '-I', default=None, type=int,
                         help="Set number of index columns (defaults to 0)")
-    parser.add_argument('--sheet', '-S', default=None, type=int,
+    parser.add_argument('--sheet', '-S', default=0, type=int,
                         help="Set the sheet index to read (defaults to 0)")
     parser.add_argument('--start_pos', '-s',
                         help="Initial cursor display position. "
@@ -36,7 +36,7 @@ def arg_parse():
                         "comma-separated numbers (--start_pos 2,3) for both. "
                         "Alternatively, you can pass the numbers in the more "
                         "classic +y:[x] format without the --start_pos label. "
-                        "Like 'tabview <fn> +5:10'")
+                        "Like 'gtabview <fn> +5:10'")
     return parser.parse_known_args()
 
 

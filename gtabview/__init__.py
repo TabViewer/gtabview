@@ -103,7 +103,7 @@ class DetachedViewController(threading.Thread):
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
-         idx_cols=None, sheet_index=None, wait=None, recycle=None, detach=None):
+         idx_cols=None, sheet_index=0, wait=None, recycle=None, detach=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
     # if data is a file/path, read it
