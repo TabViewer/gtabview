@@ -29,12 +29,14 @@ setup(name='gtabview', version='0.1',
                    'Topic :: Scientific/Engineering',
                    'Topic :: Office/Business :: Financial :: Spreadsheet',
                    'Topic :: Scientific/Engineering :: Visualization',
+                   'Topic :: Software Development :: User Interfaces',
+                   'Topic :: Software Development :: Widget Sets',
                    'Topic :: Utilities'],
 
       scripts=['bin/gtabview'],
       packages=find_packages(),
       include_package_data=True,
-      exclude_package_data = {'': ['*.txt', '*.rst']},
+      exclude_package_data={'': ['*.txt', '*.rst']},
 
-      install_requires=['setuptools'],
-      setup_requires=['setuptools_git'])
+      install_requires=[],
+      setup_requires=['setuptools', 'setuptools_git'])
