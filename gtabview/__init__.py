@@ -123,6 +123,12 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
         data = read_table(data, enc, delimiter, hdr_rows, sheet_index)
+        if hdr_rows is None:
+            hdr_rows = 1 if len(data) > 1 else 0
+
+    # only assume an header when loading from a file
+    if hdr_rows is None: hdr_rows = 0
+    if idx_cols is None: idx_cols = 0
 
     model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols, transpose=transpose)
     if model is None:

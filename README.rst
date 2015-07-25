@@ -30,8 +30,14 @@ Usage as a module
     # view a dict (by columns)
     view({'a': [1, 2, 3], 'b': [4, 5, 6], 'c': [7, 8, 9]})
 
+    # view a dict (by rows)
+    view({'a': [1, 2, 3], 'b': [4, 5, 6], 'c': [7, 8, 9]}, transpose=True)
+
     # view a simple list of lists
-    view([['a', 'b', 'c'], [1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    view([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+    # view a simple list of lists (with headers)
+    view([['a', 'b', 'c'], [1, 2, 3], [4, 5, 6], [7, 8, 9]], hdr_rows=1)
 
     # view a DataFrame/Series/Panel
     import pandas as pd

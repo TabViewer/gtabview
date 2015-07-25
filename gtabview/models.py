@@ -52,12 +52,8 @@ class TranposedExtDataModel(ExtDataModel):
 
 
 class ExtListModel(ExtDataModel):
-    def __init__(self, data, hdr_rows=None, idx_cols=None):
+    def __init__(self, data, hdr_rows=0, idx_cols=0):
         super(ExtListModel, self).__init__()
-        if hdr_rows is None:
-            hdr_rows = 1 if len(data) > 1 else 0
-        if idx_cols is None:
-            idx_cols = 0
         self._header_shape = (hdr_rows, idx_cols)
         self._shape = (len(data) - hdr_rows, max(map(len, data)) - idx_cols)
         self._data = data
@@ -165,7 +161,7 @@ def _data_lower(data):
     return data
 
 
-def as_model(data, hdr_rows=None, idx_cols=None, transpose=False):
+def as_model(data, hdr_rows=0, idx_cols=0, transpose=False):
     model = None
     if isinstance(data, ExtDataModel):
         model = data
