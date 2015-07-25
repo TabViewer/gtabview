@@ -29,6 +29,7 @@ class ExtDataModel(object):
 
 class TranposedExtDataModel(ExtDataModel):
     def __init__(self, model):
+        super(TranposedExtDataModel, self).__init__()
         self._model = model
 
     def shape(self):
@@ -76,6 +77,27 @@ class ExtListModel(ExtDataModel):
     def data(self, y, x):
         return getitem2(self._data, y + self._header_shape[0],
                         x + self._header_shape[1], '')
+
+
+class ExtMapModel(ExtDataModel):
+    def __init__(self, data):
+        super(ExtMapModel, self).__init__()
+        self._data = data
+        self._keys = list(data.keys())
+        h = max((len(x) for x in data.values()))
+        self._shape = (h, len(self._keys))
+
+    def shape(self):
+        return self._shape
+
+    def header_shape(self):
+        return (1, 0)
+
+    def data(self, y, x):
+        return getitem(self._data[self._keys[x]], y, '')
+
+    def header(self, axis, x, level):
+        return self._keys[x]
 
 
 class ExtVectorModel(ExtDataModel):
@@ -140,8 +162,6 @@ def _data_lower(data):
     # TODO: add specific data models to reduce overhead
     if data.__class__.__name__ in ['Series', 'Panel']:
         return data.to_frame()
-    elif isinstance(data, dict):
-        return [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
     return data
 
 
@@ -157,6 +177,9 @@ def as_model(data, hdr_rows=None, idx_cols=None, transpose=False):
             model = ExtFrameModel(data)
         elif hasattr(data, '__array__') and len(data.shape) >= 2:
             model = ExtMatrixModel(data)
+        elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
+             hasattr(data, 'keys') and hasattr(data, 'values'):
+            model = ExtMapModel(data)
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
              hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__'):
             model = ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
