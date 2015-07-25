@@ -116,15 +116,15 @@ def _varname_in_stack(var, skip):
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
-         idx_cols=None, sheet_index=0, wait=None, recycle=None, detach=None,
-         metavar=None, title=None):
+         idx_cols=None, sheet_index=0, transpose=False, wait=None,
+         recycle=None, detach=None, metavar=None, title=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
     # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
         data = read_table(data, enc, delimiter, hdr_rows, sheet_index)
 
-    model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
+    model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols, transpose=transpose)
     if model is None:
         warnings.warn("cannot visualize the supplied data type: {}".format(type(data)),
                       category=RuntimeWarning)

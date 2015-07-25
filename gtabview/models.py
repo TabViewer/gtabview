@@ -12,16 +12,42 @@ def getitem2(lst, y, x, default=None):
 
 class ExtDataModel(object):
     def shape(self):
-        pass
+        raise Exception()
 
     def header_shape(self):
-        pass
+        raise Exception()
 
     def data(self, y, x):
-        pass
+        raise Exception()
 
     def header(self, axis, x, level):
-        pass
+        raise Exception()
+
+    def transpose(self):
+        return TranposedExtDataModel(self)
+
+
+class TranposedExtDataModel(ExtDataModel):
+    def __init__(self, model):
+        self._model = model
+
+    def shape(self):
+        x, y = self._model.shape()
+        return (y, x)
+
+    def header_shape(self):
+        x, y = self._model.header_shape()
+        return (y, x)
+
+    def data(self, y, x):
+        return self._model.data(x, y)
+
+    def header(self, axis, x, level):
+        return self._model.header(not axis, x, level)
+
+    def transpose(self):
+        return self._model
+
 
 
 class ExtListModel(ExtDataModel):
@@ -110,25 +136,33 @@ class ExtFrameModel(ExtDataModel):
             else str(ax.values[x][level])
 
 
-def as_model(data, hdr_rows=None, idx_cols=None):
-    if isinstance(data, ExtDataModel):
-        return data
-
+def _data_lower(data):
     # TODO: add specific data models to reduce overhead
     if data.__class__.__name__ in ['Series', 'Panel']:
-        data = data.to_frame()
+        return data.to_frame()
     elif isinstance(data, dict):
-        data = [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
+        return [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
+    return data
 
-    if hasattr(data, '__array__') and hasattr(data, 'iat') and \
-       hasattr(data, 'index') and hasattr(data, 'columns'):
-        return ExtFrameModel(data)
-    elif hasattr(data, '__array__') and len(data.shape) >= 2:
-        return ExtMatrixModel(data)
-    elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
-         hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__'):
-        return ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
-    elif hasattr(data, '__getitem__') and hasattr(data, '__len__'):
-        return ExtVectorModel(data)
 
-    return None
+def as_model(data, hdr_rows=None, idx_cols=None, transpose=False):
+    model = None
+    if isinstance(data, ExtDataModel):
+        model = data
+    else:
+        data = _data_lower(data)
+
+        if hasattr(data, '__array__') and hasattr(data, 'iat') and \
+           hasattr(data, 'index') and hasattr(data, 'columns'):
+            model = ExtFrameModel(data)
+        elif hasattr(data, '__array__') and len(data.shape) >= 2:
+            model = ExtMatrixModel(data)
+        elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
+             hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__'):
+            model = ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
+        elif hasattr(data, '__getitem__') and hasattr(data, '__len__'):
+            model = ExtVectorModel(data)
+
+    if transpose and model:
+        model = model.transpose()
+    return model
