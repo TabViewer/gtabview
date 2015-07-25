@@ -58,7 +58,7 @@ class ExtListModel(ExtDataModel):
         if idx_cols is None:
             idx_cols = 0
         self._header_shape = (hdr_rows, idx_cols)
-        self._shape = (len(data) - hdr_rows, len(data[0]) - idx_cols)
+        self._shape = (len(data) - hdr_rows, max(map(len, data)) - idx_cols)
         self._data = data
 
     def shape(self):
