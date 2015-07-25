@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
-
-import collections
 from .compat import *
 
 
@@ -122,14 +120,15 @@ def as_model(data, hdr_rows=None, idx_cols=None):
     elif isinstance(data, dict):
         data = [data.keys()] + list(map(list, zip(*[data[i] for i in data.keys()])))
 
-    if data.__class__.__name__ == 'DataFrame':
+    if hasattr(data, '__array__') and hasattr(data, 'iat') and \
+       hasattr(data, 'index') and hasattr(data, 'columns'):
         return ExtFrameModel(data)
-    elif data.__class__.__name__ == 'ndarray':
+    elif hasattr(data, '__array__') and len(data.shape) >= 2:
         return ExtMatrixModel(data)
-    elif isinstance(data, collections.Sequence) and \
-         isinstance(data[0], collections.Sequence):
+    elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
+         hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__'):
         return ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
-    elif isinstance(data, collections.Sequence):
+    elif hasattr(data, '__getitem__') and hasattr(data, '__len__'):
         return ExtVectorModel(data)
 
     return None
