@@ -63,6 +63,48 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
         return str(self.model.header(self.axis, col, row))
 
 
+class Level4ExtModel(QtCore.QAbstractTableModel):
+    def __init__(self, model, palette, font):
+        super(Level4ExtModel, self).__init__()
+        self.model = model
+        self._palette = palette
+        font.setBold(True)
+        self._font = font
+
+    def rowCount(self, index=None):
+        return self.model.header_shape()[0]
+
+    def columnCount(self, index=None):
+        return self.model.header_shape()[1]
+
+    def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.TextAlignmentRole:
+            if orientation == QtCore.Qt.Horizontal:
+                return QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom
+            else:
+                return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+        if role != QtCore.Qt.DisplayRole: return None
+        return 'L' + str(section)
+
+    def data(self, index, role):
+        if not index.isValid(): return None
+        if role == QtCore.Qt.FontRole:
+            return self._font
+        if index.row() == self.model.header_shape()[0] - 1:
+            if role == QtCore.Qt.DisplayRole:
+                return str(self.model.name(1, index.column()))
+            elif role == QtCore.Qt.BackgroundRole:
+                return self._palette.shadow()
+        elif index.column() == self.model.header_shape()[1] - 1:
+            if role == QtCore.Qt.DisplayRole:
+                return str(self.model.name(0, index.row()))
+            elif role == QtCore.Qt.BackgroundRole:
+                return self._palette.shadow()
+        elif role == QtCore.Qt.BackgroundRole:
+            return self._palette.background()
+        return None
+
+
 class ExtTableView(QtGui.QWidget):
     def __init__(self):
         super(ExtTableView, self).__init__()
@@ -86,6 +128,17 @@ class ExtTableView(QtGui.QWidget):
         self.hscroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
         self.vscroll = QtGui.QScrollBar(QtCore.Qt.Vertical)
 
+        self.table_level = QtGui.QTableView()
+        self.table_level.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.table_level.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.table_level.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.table_level.setFrameStyle(QtGui.QFrame.Plain)
+        self.table_level.setSelectionMode(QtGui.QTableView.ContiguousSelection)
+        self.table_level.horizontalHeader().sectionResized.connect(self._index_resized)
+        self.table_level.verticalHeader().sectionResized.connect(self._header_resized)
+        self.table_level.setItemDelegate(QtGui.QItemDelegate())
+        layout.addWidget(self.table_level, 0, 0)
+
         self.table_header = QtGui.QTableView()
         self.table_header.verticalHeader().hide()
         self.table_header.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
@@ -100,6 +153,7 @@ class ExtTableView(QtGui.QWidget):
         layout.addWidget(self.table_header, 0, 1)
 
         self.table_index = QtGui.QTableView()
+        self.table_index.horizontalHeader().hide()
         self.table_index.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
         self.table_index.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_index.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -107,10 +161,9 @@ class ExtTableView(QtGui.QWidget):
         self.table_index.setVerticalScrollBar(self.vscroll)
         self.table_index.setFrameStyle(QtGui.QFrame.Plain)
         self.table_index.setSelectionMode(QtGui.QTableView.ContiguousSelection)
-        self.table_index.horizontalHeader().sectionResized.connect(self._index_resized)
         self.table_index.verticalHeader().sectionResized.connect(self._row_resized)
         self.table_index.setItemDelegate(QtGui.QItemDelegate())
-        layout.addWidget(self.table_index, 0, 0, 2, 1)
+        layout.addWidget(self.table_index, 1, 0)
 
         self.table_data = QtGui.QTableView()
         self.table_data.verticalHeader().hide()
@@ -132,7 +185,7 @@ class ExtTableView(QtGui.QWidget):
         layout.addWidget(self.vscroll, 0, 2, 2, 2)
 
 
-    def _select_columns(self, source, dest):
+    def _select_columns(self, source, dest, deselect):
         if self._selection_rec: return
         self._selection_rec = True
         dsm = dest.selectionModel()
@@ -141,10 +194,11 @@ class ExtTableView(QtGui.QWidget):
         for col in (index.column() for index in ssm.selectedIndexes()):
             dsm.select(dest.model().index(0, col),
                        QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Columns)
+        deselect.selectionModel().clear()
         self._selection_rec = False
 
 
-    def _select_rows(self, source, dest):
+    def _select_rows(self, source, dest, deselect):
         if self._selection_rec: return
         self._selection_rec = True
         dsm = dest.selectionModel()
@@ -153,6 +207,7 @@ class ExtTableView(QtGui.QWidget):
         for row in (index.row() for index in ssm.selectedIndexes()):
             dsm.select(dest.model().index(row, 0),
                        QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
+        deselect.selectionModel().clear()
         self._selection_rec = False
 
 
@@ -161,27 +216,39 @@ class ExtTableView(QtGui.QWidget):
 
     def _column_resized(self, col, old_width, new_width):
         self.table_data.setColumnWidth(col, new_width)
+        self._update_layout()
 
     def _row_resized(self, row, old_height, new_height):
         self.table_data.setRowHeight(row, new_height)
+        self._update_layout()
 
     def _index_resized(self, col, old_width, new_width):
-        self.table_index.setFixedWidth(self.table_index.minimumWidth() + (new_width - old_width))
+        self.table_index.setColumnWidth(col, new_width)
+        self._update_layout()
 
+    def _header_resized(self, row, old_height, new_height):
+        self.table_header.setRowHeight(row, new_height)
+        self._update_layout()
 
     def _update_layout(self):
+        h_width = max(self.table_level.verticalHeader().sizeHint().width(),
+                      self.table_index.verticalHeader().sizeHint().width())
+        self.table_level.verticalHeader().setFixedWidth(h_width)
+        self.table_index.verticalHeader().setFixedWidth(h_width)
+
         last_row = self._model.header_shape()[0] - 1
-        hdr_height = self.table_header.rowViewportPosition(last_row) + \
-                     self.table_header.rowHeight(last_row) + \
-                     self.table_header.horizontalHeader().height()
+        hdr_height = self.table_level.rowViewportPosition(last_row) + \
+                     self.table_level.rowHeight(last_row) + \
+                     self.table_level.horizontalHeader().height()
         self.table_header.setFixedHeight(hdr_height)
-        self.table_index.horizontalHeader().setFixedHeight(hdr_height)
+        self.table_level.setFixedHeight(hdr_height)
 
         last_col = self._model.header_shape()[1] - 1
-        idx_width = self.table_index.columnViewportPosition(last_col) + \
-                    self.table_index.columnWidth(last_col) + \
-                    self.table_index.verticalHeader().width()
+        idx_width = self.table_level.columnViewportPosition(last_col) + \
+                    self.table_level.columnWidth(last_col) + \
+                    self.table_level.verticalHeader().width()
         self.table_index.setFixedWidth(idx_width)
+        self.table_level.setFixedWidth(idx_width)
 
 
     def _reset_model(self, table, model):
@@ -196,19 +263,30 @@ class ExtTableView(QtGui.QWidget):
         self._reset_model(self.table_data, Data4ExtModel(model))
         sel_model = self.table_data.selectionModel()
         sel_model.selectionChanged.connect(
-            lambda *_: self._select_columns(self.table_data, self.table_header))
+            lambda *_: self._select_columns(self.table_data, self.table_header, self.table_level))
         sel_model.selectionChanged.connect(
-            lambda *_: self._select_rows(self.table_data, self.table_index))
+            lambda *_: self._select_rows(self.table_data, self.table_index, self.table_level))
+
+        self._reset_model(self.table_level, Level4ExtModel(model, self.palette(), self.font()))
+        sel_model = self.table_level.selectionModel()
+        sel_model.selectionChanged.connect(
+            lambda *_: self._select_columns(self.table_level, self.table_index, self.table_data))
+        sel_model.selectionChanged.connect(
+            lambda *_: self._select_rows(self.table_level, self.table_header, self.table_data))
 
         self._reset_model(self.table_header, Header4ExtModel(model, 0, self.palette()))
         sel_model = self.table_header.selectionModel()
         sel_model.selectionChanged.connect(
-            lambda *_: self._select_columns(self.table_header, self.table_data))
+            lambda *_: self._select_columns(self.table_header, self.table_data, self.table_index))
+        sel_model.selectionChanged.connect(
+            lambda *_: self._select_rows(self.table_header, self.table_level, self.table_index))
 
         self._reset_model(self.table_index, Header4ExtModel(model, 1, self.palette()))
         sel_model = self.table_index.selectionModel()
         sel_model.selectionChanged.connect(
-            lambda *_: self._select_rows(self.table_index, self.table_data))
+            lambda *_: self._select_rows(self.table_index, self.table_data, self.table_header))
+        sel_model.selectionChanged.connect(
+            lambda *_: self._select_columns(self.table_index, self.table_level, self.table_header))
 
         # needs to be called after setting all table models
         self._update_layout()
@@ -220,7 +298,14 @@ class ExtTableView(QtGui.QWidget):
             QtGui.QItemSelectionModel.ClearAndSelect)
 
     def resizeIndexToContents(self):
-        self.table_index.resizeColumnsToContents()
+        for col in range(self._model.header_shape()[1]):
+            hdr_width = self.table_level.sizeHintForColumn(col)
+            idx_width = self.table_index.sizeHintForColumn(col)
+            if idx_width > hdr_width or hdr_width > idx_width * 2:
+                width = idx_width
+            else:
+                width = hdr_width
+            self.table_level.setColumnWidth(col, width)
         self._update_layout()
 
     def resizeColumnsToContents(self):
