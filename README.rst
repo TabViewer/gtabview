@@ -1,8 +1,8 @@
 gtabview: a simple graphical tabular data viewer
 ================================================
 
-A graphical counterpart to `tabview <https://github.com/firecat53/tabview/>`_,
-a simple tabular data viewer that can be used both stand-alone and as a Python
+Graphical counterpart to `tabview <https://github.com/firecat53/tabview/>`_, a
+simple tabular data viewer that can be used both stand-alone and as a Python
 module for various files and Python/Pandas/NumPy data structures.
 
 
