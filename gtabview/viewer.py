@@ -167,10 +167,14 @@ class ExtTableView(QtGui.QWidget):
                      self.table_header.horizontalHeader().height()
         self.table_header.setFixedHeight(hdr_height)
 
+        # enable the horizontal header while calculating the width due to
+        # a bug in QT/QTableView not setting the correct column width
+        self.table_index.horizontalHeader().show()
         last_col = self._model.header_shape()[1] - 1
         idx_width = self.table_index.columnViewportPosition(last_col) + \
                     self.table_index.columnWidth(last_col) + \
                     self.table_index.verticalHeader().width()
+        self.table_index.horizontalHeader().hide()
         self.table_index.setFixedWidth(idx_width)
 
 
