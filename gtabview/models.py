@@ -98,9 +98,6 @@ class ExtMapModel(ExtDataModel):
     def data(self, y, x):
         return getitem(self._data[self._keys[x]], y, '')
 
-    def name(self, axis, level):
-        return 'K'
-
     def header(self, axis, x, level):
         return self._keys[x]
 

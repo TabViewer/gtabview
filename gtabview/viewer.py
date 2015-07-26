@@ -15,10 +15,10 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
         self.model = model
 
     def rowCount(self, index=None):
-        return self.model.shape()[0]
+        return max(1, self.model.shape()[0])
 
     def columnCount(self, index=None):
-        return self.model.shape()[1]
+        return max(1, self.model.shape()[1])
 
     def data(self, index, role):
         if role != QtCore.Qt.DisplayRole or not index.isValid():
@@ -32,14 +32,16 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
         self.model = model
         self.axis = axis
         self._palette = palette
+        if self.axis == 0:
+            self._shape = (self.model.header_shape()[0], self.model.shape()[1])
+        else:
+            self._shape = (self.model.shape()[0], self.model.header_shape()[1])
 
     def rowCount(self, index=None):
-        return self.model.shape()[0] if self.axis == 1 \
-            else self.model.header_shape()[0]
+        return max(1, self._shape[0])
 
     def columnCount(self, index=None):
-        return self.model.shape()[1] if self.axis == 0 \
-            else self.model.header_shape()[1]
+        return max(1, self._shape[1])
 
     def headerData(self, section, orientation, role):
         if role == QtCore.Qt.TextAlignmentRole:
@@ -47,19 +49,21 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
                 return QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom
             else:
                 return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-        if role != QtCore.Qt.DisplayRole: return None
+        if role != QtCore.Qt.DisplayRole:
+            return None
         return section if self.axis == (orientation - 1) else \
             self.model.name(self.axis, section)
 
     def data(self, index, role):
+        if not index.isValid() or not self._shape[self.axis]:
+            return None
         row, col = (index.row(), index.column()) if self.axis == 0 \
                    else (index.column(), index.row())
         if role == QtCore.Qt.BackgroundRole:
             prev = self.model.header(self.axis, col - 1, row) if col else None
             cur = self.model.header(self.axis, col, row)
             return self._palette.midlight() if prev != cur else None
-        if role != QtCore.Qt.DisplayRole or not index.isValid():
-            return None
+        if role != QtCore.Qt.DisplayRole: return None
         return str(self.model.header(self.axis, col, row))
 
 
@@ -72,10 +76,10 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
         self._font = font
 
     def rowCount(self, index=None):
-        return self.model.header_shape()[0]
+        return max(1, self.model.header_shape()[0])
 
     def columnCount(self, index=None):
-        return self.model.header_shape()[1]
+        return max(1, self.model.header_shape()[1])
 
     def headerData(self, section, orientation, role):
         if role == QtCore.Qt.TextAlignmentRole:
@@ -87,7 +91,8 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
         return 'L' + str(section)
 
     def data(self, index, role):
-        if not index.isValid(): return None
+        if not index.isValid():
+            return None
         if role == QtCore.Qt.FontRole:
             return self._font
         if index.row() == self.model.header_shape()[0] - 1:
@@ -237,16 +242,22 @@ class ExtTableView(QtGui.QWidget):
         self.table_index.verticalHeader().setFixedWidth(h_width)
 
         last_row = self._model.header_shape()[0] - 1
-        hdr_height = self.table_level.rowViewportPosition(last_row) + \
-                     self.table_level.rowHeight(last_row) + \
-                     self.table_level.horizontalHeader().height()
+        if last_row < 0:
+            hdr_height = self.table_level.horizontalHeader().height()
+        else:
+            hdr_height = self.table_level.rowViewportPosition(last_row) + \
+                         self.table_level.rowHeight(last_row) + \
+                         self.table_level.horizontalHeader().height()
         self.table_header.setFixedHeight(hdr_height)
         self.table_level.setFixedHeight(hdr_height)
 
         last_col = self._model.header_shape()[1] - 1
-        idx_width = self.table_level.columnViewportPosition(last_col) + \
-                    self.table_level.columnWidth(last_col) + \
-                    self.table_level.verticalHeader().width()
+        if last_col < 0:
+            idx_width = self.table_level.verticalHeader().width()
+        else:
+            idx_width = self.table_level.columnViewportPosition(last_col) + \
+                        self.table_level.columnWidth(last_col) + \
+                        self.table_level.verticalHeader().width()
         self.table_index.setFixedWidth(idx_width)
         self.table_level.setFixedWidth(idx_width)
 
