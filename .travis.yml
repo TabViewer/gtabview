@@ -1,0 +1,69 @@
+language: python
+os: linux
+sudo: false
+ 
+env:
+  global:
+    - DISPLAY=:0
+
+matrix:
+  include:
+    - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
+    - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
+            - python-xlrd
+    - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
+            - python-matplotlib
+    - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
+            - python-pandas
+    - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
+    - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
+            - python3-xlrd
+    - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
+            - python3-matplotlib
+    - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
+            - python3-pandas
+
+before_install:
+  - sh -e /etc/init.d/xvfb start
+  - pip install coveralls
+
+install:
+  - python setup.py -q install
+
+script:
+  - nosetests -v --with-coverage --cover-package gtabview
+
+after_success:
+  - coveralls

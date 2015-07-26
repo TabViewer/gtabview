@@ -38,4 +38,5 @@ setup(name='gtabview', version='0.2',
       exclude_package_data={'': ['*.txt', '*.rst']},
 
       install_requires=[],
-      setup_requires=['setuptools', 'setuptools_git'])
+      setup_requires=['setuptools', 'setuptools_git', 'nose'],
+      test_suite='nose.collector')
