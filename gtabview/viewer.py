@@ -174,22 +174,28 @@ class ExtTableView(QtGui.QWidget):
         self.table_index.setFixedWidth(idx_width)
 
 
+    def _reset_model(self, table, model):
+        old_sel_model = table.selectionModel()
+        table.setModel(model)
+        if old_sel_model:
+            del old_sel_model
+
+
     def setModel(self, model):
         self._model = model
-        self.table_data.setModel(Data4ExtModel(model))
-
+        self._reset_model(self.table_data, Data4ExtModel(model))
         sel_model = self.table_data.selectionModel()
         sel_model.selectionChanged.connect(
             lambda *_: self._select_columns(self.table_data, self.table_header))
         sel_model.selectionChanged.connect(
             lambda *_: self._select_rows(self.table_data, self.table_index))
 
-        self.table_header.setModel(Header4ExtModel(model, 0, self.palette()))
+        self._reset_model(self.table_header, Header4ExtModel(model, 0, self.palette()))
         sel_model = self.table_header.selectionModel()
         sel_model.selectionChanged.connect(
             lambda *_: self._select_columns(self.table_header, self.table_data))
 
-        self.table_index.setModel(Header4ExtModel(model, 1, self.palette()))
+        self._reset_model(self.table_index, Header4ExtModel(model, 1, self.palette()))
         sel_model = self.table_index.selectionModel()
         sel_model.selectionChanged.connect(
             lambda *_: self._select_rows(self.table_index, self.table_data))
