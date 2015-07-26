@@ -42,8 +42,13 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             else self.model.header_shape()[1]
 
     def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.TextAlignmentRole:
+            if orientation == QtCore.Qt.Horizontal:
+                return QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom
+            else:
+                return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         if role != QtCore.Qt.DisplayRole: return None
-        return section
+        return section if self.axis == (orientation - 1) else 'L{}'.format(section)
 
     def data(self, index, role):
         row, col = (index.row(), index.column()) if self.axis == 0 \
@@ -94,7 +99,6 @@ class ExtTableView(QtGui.QWidget):
         layout.addWidget(self.table_header, 0, 1)
 
         self.table_index = QtGui.QTableView()
-        self.table_index.horizontalHeader().hide()
         self.table_index.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
         self.table_index.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_index.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -102,9 +106,10 @@ class ExtTableView(QtGui.QWidget):
         self.table_index.setVerticalScrollBar(self.vscroll)
         self.table_index.setFrameStyle(QtGui.QFrame.Plain)
         self.table_index.setSelectionMode(QtGui.QTableView.ContiguousSelection)
+        self.table_index.horizontalHeader().sectionResized.connect(self._index_resized)
         self.table_index.verticalHeader().sectionResized.connect(self._row_resized)
         self.table_index.setItemDelegate(QtGui.QItemDelegate())
-        layout.addWidget(self.table_index, 1, 0)
+        layout.addWidget(self.table_index, 0, 0, 2, 1)
 
         self.table_data = QtGui.QTableView()
         self.table_data.verticalHeader().hide()
@@ -159,6 +164,9 @@ class ExtTableView(QtGui.QWidget):
     def _row_resized(self, row, old_height, new_height):
         self.table_data.setRowHeight(row, new_height)
 
+    def _index_resized(self, col, old_width, new_width):
+        self.table_index.setFixedWidth(self.table_index.minimumWidth() + (new_width - old_width))
+
 
     def _update_layout(self):
         last_row = self._model.header_shape()[0] - 1
@@ -166,15 +174,12 @@ class ExtTableView(QtGui.QWidget):
                      self.table_header.rowHeight(last_row) + \
                      self.table_header.horizontalHeader().height()
         self.table_header.setFixedHeight(hdr_height)
+        self.table_index.horizontalHeader().setFixedHeight(hdr_height)
 
-        # enable the horizontal header while calculating the width due to
-        # a bug in QT/QTableView not setting the correct column width
-        self.table_index.horizontalHeader().show()
         last_col = self._model.header_shape()[1] - 1
         idx_width = self.table_index.columnViewportPosition(last_col) + \
                     self.table_index.columnWidth(last_col) + \
                     self.table_index.verticalHeader().width()
-        self.table_index.horizontalHeader().hide()
         self.table_index.setFixedWidth(idx_width)
 
 
@@ -259,8 +264,7 @@ class Viewer(QtGui.QMainWindow):
             # than loading all the data itself, so do it for small tables only
             self.table.resizeColumnsToContents()
         elif model.header_shape()[1] * shape[0] < 1e5:
-            # similarly for the index, although we still do some more effort
-            # due to fact that we cannot resize it (yet)
+            # similarly for the index
             self.table.resizeIndexToContents()
 
         self.table.setFocus()
