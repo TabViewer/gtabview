@@ -23,6 +23,9 @@ class ExtDataModel(object):
     def header(self, axis, x, level):
         raise Exception()
 
+    def name(self, axis, level):
+        return 'L' + str(level)
+
     def transpose(self):
         return TranposedExtDataModel(self)
 
@@ -45,6 +48,9 @@ class TranposedExtDataModel(ExtDataModel):
 
     def header(self, axis, x, level):
         return self._model.header(not axis, x, level)
+
+    def name(self, axis, level):
+        return self._model.name(not axis, level)
 
     def transpose(self):
         return self._model
@@ -91,6 +97,9 @@ class ExtMapModel(ExtDataModel):
 
     def data(self, y, x):
         return getitem(self._data[self._keys[x]], y, '')
+
+    def name(self, axis, level):
+        return 'K'
 
     def header(self, axis, x, level):
         return self._keys[x]
@@ -152,6 +161,14 @@ class ExtFrameModel(ExtDataModel):
         ax = self._axis(axis)
         return str(ax.values[x]) if not hasattr(ax, 'levels') \
             else str(ax.values[x][level])
+
+    def name(self, axis, level):
+        ax = self._axis(axis)
+        if hasattr(ax, 'levels'):
+            return ax.names[level]
+        if ax.name:
+            return ax.name
+        return super(ExtFrameModel, self).name(axis, level)
 
 
 def _data_lower(data):
