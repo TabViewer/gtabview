@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import
 
-import os
-PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
-SAMPLE_ROOT = os.path.join(PROJECT_ROOT, "sample")
-
-import gtabview
-from gtabview import view
-
+from . import *
 gtabview.WAIT=False
 gtabview.DETACH=True
+
 
 def test_view_vect():
     view([1, 2, 3])

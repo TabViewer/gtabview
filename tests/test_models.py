@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import
 
-from tests import *
+from . import *
 from gtabview.models import as_model
 
 
