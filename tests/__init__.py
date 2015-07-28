@@ -1,12 +1,31 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import
 
-import os
-PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
-SAMPLE_ROOT = os.path.join(PROJECT_ROOT, "sample")
-
 import gtabview
 from gtabview import view
+
+import importlib
+import nose
+import os
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+SAMPLE_ROOT = os.path.join(PROJECT_ROOT, "sample")
+TDATA_ROOT = os.path.join(PROJECT_ROOT, os.path.dirname(__file__), "data")
+
+
+class require(object):
+    def __init__(self, module):
+        self.module = module
+
+    def __call__(self, func):
+        def wrapper():
+            try:
+                importlib.import_module(self.module)
+            except ImportError:
+                raise nose.SkipTest("requires {}".format(self.module))
+            return func()
+        wrapper.__name__ = func.__name__
+        return wrapper
 
 
 def materialize(model):
@@ -19,4 +38,4 @@ def materialize_header(model, axis):
     if axis == 0:
         return [[model.header(axis, x, level) for x in range(shape[1])] for level in range(header_shape[0])]
     else:
-        return [[model.header(axis, x, level) for x in range(header_shape[1])] for level in range(shape[0])]
+        return [[model.header(axis, x, level) for x in range(shape[0])] for level in range(header_shape[1])]
