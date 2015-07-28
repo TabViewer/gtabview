@@ -35,10 +35,8 @@ def materialize(model):
 def materialize_header(model, axis):
     shape = model.shape()
     header_shape = model.header_shape()
-    if axis == 0:
-        return [[model.header(axis, x, level) for x in range(shape[1])] for level in range(header_shape[0])]
-    else:
-        return [[model.header(axis, x, level) for x in range(shape[0])] for level in range(header_shape[1])]
+    return [[model.header(axis, x, level) for x in range(shape[not axis])]
+            for level in range(header_shape[axis])]
 
 def materialize_names(model, axis):
     shape = model.header_shape()
