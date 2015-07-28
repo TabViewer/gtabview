@@ -33,6 +33,14 @@ def test_model_list():
     assert(model.shape() == (2, 3))
     assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
 
+def test_model_list_hdr_idx():
+    model = as_model([[None, 'a', 'b', 'c'], ['x', 1, 2, 3], ['y', 1, 2, 3]], hdr_rows=1, idx_cols=1)
+    assert(model.header_shape() == (1, 1))
+    assert(model.shape() == (2, 3))
+    assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
+    assert(materialize_header(model, 0) == [['a', 'b', 'c']])
+    assert(materialize_header(model, 1) == [['x', 'y']])
+
 def test_model_list_ragged():
     model = as_model([[1, 2], [1, 2, 3]])
     assert(model.header_shape() == (0, 0))
