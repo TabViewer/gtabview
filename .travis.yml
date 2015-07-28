@@ -31,7 +31,15 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - pip install pandas
+        - pip install -q pandas
+    - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
+            - python-matplotlib
+      before_install:
+        - pip install -q pandas
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -55,10 +63,18 @@ matrix:
           packages:
             - python3-pyqt4
       before_install:
-        - pip install pandas
+        - pip install -q pandas
+    - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
+            - python3-matplotlib
+      before_install:
+        - pip install -q pandas
 
 install:
-  - pip install coveralls
+  - pip install -q coveralls
   - python setup.py -q install
 
 before_script:
