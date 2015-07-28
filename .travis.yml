@@ -30,8 +30,8 @@ matrix:
         apt:
           packages:
             - python-qt4
-        before_install:
-	  - pip install pandas
+      before_install:
+        - pip install pandas
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -54,13 +54,15 @@ matrix:
         apt:
           packages:
             - python3-pyqt4
-        before_install:
-	  - pip install pandas
+      before_install:
+        - pip install pandas
 
 install:
-  - sh -e /etc/init.d/xvfb start
   - pip install coveralls
   - python setup.py -q install
+
+before_script:
+  - sh -e /etc/init.d/xvfb start
 
 script:
   - nosetests -v --with-coverage --cover-package gtabview
