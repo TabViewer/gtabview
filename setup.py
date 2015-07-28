@@ -8,7 +8,7 @@ long_description = (readme + "\n\nLatest release notes\n====================\n"
                     + '\n'.join(news.split('\n\n\n', 1)[0].splitlines()[2:]))
 
 # the actual setup
-setup(name='gtabview', version='0.2',
+setup(name='gtabview', version='0.3',
       description='A simple graphical tabular data viewer',
 
       author="Yuri D'Elia",
@@ -25,7 +25,6 @@ setup(name='gtabview', version='0.2',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3',
-                   'Topic :: Scientific/Engineering',
                    'Topic :: Office/Business :: Financial :: Spreadsheet',
                    'Topic :: Scientific/Engineering :: Visualization',
                    'Topic :: Software Development :: User Interfaces',
@@ -34,10 +33,6 @@ setup(name='gtabview', version='0.2',
 
       scripts=['bin/gtabview'],
       packages=find_packages(),
-      include_package_data=True,
-      exclude_package_data={'': ['*.txt', '*.rst']},
-
-      install_requires=[],
-      setup_requires=['setuptools', 'setuptools_git'],
+      setup_requires=['setuptools', 'setuptools-git'],
       extras_require={'test': ['nose']},
       test_suite='nose.collector')

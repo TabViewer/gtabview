@@ -61,6 +61,11 @@ not block, and will keep recycling the same window.
 Requirements and installation
 -----------------------------
 
+`gtabview` is available directly on the `Python Package Index
+<https://pypi.python.org/pypi/gtabview>`_.
+
+`gtabview` requires:
+
 - Python 2 or Python 3
 - PyQt4 or PySide
 - setuptools and setuptools-git (install-only).
@@ -70,21 +75,11 @@ Under Debian/Ubuntu, install the required dependencies with::
   sudo apt-get install python python-qt4
   sudo apt-get install python-setuptools python-setuptools-git
 
-Then download and install regularly with::
+Then download and install simply via pip::
 
-  git clone https://github.com/wavexx/gtabview
-  cd gtabview
-  ./setup.py install
-
-You can also install directly via `pip`::
-
-  pip install git+git://github.com/wavexx/gtabview
+  pip install gtabview
 
 Excel files are supported if the ``xlrd`` module is also installed::
-
-  sudo apt-get install python-xlrd
-
-or::
 
   pip install xlrd
 
