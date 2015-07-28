@@ -72,6 +72,27 @@ def test_model_frame_multiindex():
     assert(materialize_names(model, 1) == ['RL0', 'RL1'])
 
 @require('pandas')
+def test_model_tranpose():
+    import pandas as pd
+    col_index = pd.MultiIndex.from_tuples(
+        list(zip(['A', 'B', 'C'], ['a', 'b', 'c'])),
+        names=['CL0', 'CL1'])
+    row_index = pd.MultiIndex.from_tuples(
+        list(zip(['X', 'Y'], ['x', 'y'])),
+        names=['RL0', 'RL1'])
+    model = as_model(pd.DataFrame([[1, 2, 3], [1, 2, 3]],
+                                  columns=col_index,
+                                  index=row_index),
+                     transpose=True)
+    assert(model.header_shape() == (2, 2))
+    assert(model.shape() == (3, 2))
+    assert(materialize(model) == [[1, 1], [2, 2], [3, 3]])
+    assert(materialize_header(model, 0) == [['X', 'Y'], ['x', 'y']])
+    assert(materialize_header(model, 1) == [['A', 'B', 'C'], ['a', 'b', 'c']])
+    assert(materialize_names(model, 0) == ['RL0', 'RL1'])
+    assert(materialize_names(model, 1) == ['CL0', 'CL1'])
+
+@require('pandas')
 def test_model_series():
     import pandas as pd
     model = as_model(pd.Series([1, 2, 3], name='serie', index=['x', 'y', 'z']))
