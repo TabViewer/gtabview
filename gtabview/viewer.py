@@ -362,7 +362,9 @@ class Viewer(QtGui.QMainWindow):
 
         self.table.setFocus()
         if start_pos:
-            self.table.setCurrentIndex(start_pos[0], start_pos[1])
+            y = shape[0] - abs(start_pos[0]) if start_pos[0] < 0 else start_pos[0]
+            x = shape[1] - abs(start_pos[1]) if start_pos[1] < 0 else start_pos[1]
+            self.table.setCurrentIndex(y, x)
 
         self.showNormal()
         self.setWindowState(QtCore.Qt.WindowActive)

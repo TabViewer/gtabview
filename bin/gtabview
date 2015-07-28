@@ -31,14 +31,15 @@ def arg_parse():
     parser.add_argument('--sheet', '-S', default=0, type=int,
                         help="Set the sheet index to read (defaults to 0)")
     parser.add_argument('--transpose', '-T', action='store_true',
-                        help="Transpose the data.")
+                        help="Transpose the dataset.")
     parser.add_argument('--start_pos', '-s',
                         help="Initial cursor display position. "
                         "Single number for just y (row) position, or two "
                         "comma-separated numbers (--start_pos 2,3) for both. "
                         "Alternatively, you can pass the numbers in the more "
                         "classic +y:[x] format without the --start_pos label. "
-                        "Like 'gtabview <fn> +5:10'")
+                        "Like 'gtabview <fn> +5:10'. Negative offsets start "
+                        "from the end of the dataset.")
     return parser.parse_known_args()
 
 
