@@ -152,12 +152,12 @@ class ExtFrameModel(ExtDataModel):
         return (self._axis_levels(0), self._axis_levels(1))
 
     def data(self, y, x):
-        return str(self._data.iat[y, x])
+        return self._data.iat[y, x]
 
     def header(self, axis, x, level=0):
         ax = self._axis(axis)
-        return str(ax.values[x]) if not hasattr(ax, 'levels') \
-            else str(ax.values[x][level])
+        return ax.values[x] if not hasattr(ax, 'levels') \
+            else ax.values[x][level]
 
     def name(self, axis, level):
         ax = self._axis(axis)
