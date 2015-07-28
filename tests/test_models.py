@@ -80,3 +80,19 @@ def test_model_series():
     assert(materialize(model) == [[1], [2], [3]])
     assert(materialize_header(model, 0) == [['serie']])
     assert(materialize_header(model, 1) == [['x', 'y', 'z']])
+
+@require('numpy')
+def test_model_array():
+    import numpy as np
+    model = as_model(np.array([[1, 2, 3], [1, 2, 3]]))
+    assert(model.header_shape() == (0, 0))
+    assert(model.shape() == (2, 3))
+    assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
+
+@require('numpy')
+def test_model_matrix():
+    import numpy as np
+    model = as_model(np.matrix([[1, 2, 3], [1, 2, 3]]))
+    assert(model.header_shape() == (0, 0))
+    assert(model.shape() == (2, 3))
+    assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
