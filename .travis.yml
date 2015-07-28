@@ -30,7 +30,7 @@ matrix:
         apt:
           packages:
             - python-qt4
-            - python-pandas
+            - pandas
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -53,7 +53,7 @@ matrix:
         apt:
           packages:
             - python3-pyqt4
-            - python3-pandas
+            - pandas
 
 before_install:
   - sh -e /etc/init.d/xvfb start
