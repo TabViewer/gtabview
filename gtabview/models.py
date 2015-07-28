@@ -27,12 +27,12 @@ class ExtDataModel(object):
         return 'L' + str(level)
 
     def transpose(self):
-        return TranposedExtDataModel(self)
+        return TransposedExtDataModel(self)
 
 
-class TranposedExtDataModel(ExtDataModel):
+class TransposedExtDataModel(ExtDataModel):
     def __init__(self, model):
-        super(TranposedExtDataModel, self).__init__()
+        super(TransposedExtDataModel, self).__init__()
         self._model = model
 
     def shape(self):

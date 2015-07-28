@@ -80,7 +80,7 @@ def test_model_frame_multiindex():
     assert(materialize_names(model, 1) == ['RL0', 'RL1'])
 
 @require('pandas')
-def test_model_tranpose():
+def test_model_transpose():
     import pandas as pd
     col_index = pd.MultiIndex.from_tuples(
         list(zip(['A', 'B', 'C'], ['a', 'b', 'c'])),
