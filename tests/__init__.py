@@ -10,7 +10,7 @@ import os
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 SAMPLE_ROOT = os.path.join(PROJECT_ROOT, "sample")
-TDATA_ROOT = os.path.join(PROJECT_ROOT, os.path.dirname(__file__), "data")
+TDATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
 
 
 class require(object):
