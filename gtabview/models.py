@@ -72,13 +72,13 @@ class ExtListModel(ExtDataModel):
 
     def header(self, axis, x, level):
         if axis == 0:
-            return getitem2(self._data, level, x + self._header_shape[1], '')
+            return getitem2(self._data, level, x + self._header_shape[1])
         else:
-            return getitem2(self._data, x + self._header_shape[0], level, '')
+            return getitem2(self._data, x + self._header_shape[0], level)
 
     def data(self, y, x):
         return getitem2(self._data, y + self._header_shape[0],
-                        x + self._header_shape[1], '')
+                        x + self._header_shape[1])
 
 
 class ExtMapModel(ExtDataModel):
@@ -96,7 +96,7 @@ class ExtMapModel(ExtDataModel):
         return (1, 0)
 
     def data(self, y, x):
-        return getitem(self._data[self._keys[x]], y, '')
+        return getitem(self._data[self._keys[x]], y)
 
     def header(self, axis, x, level):
         return self._keys[x]

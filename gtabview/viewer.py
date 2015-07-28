@@ -9,6 +9,10 @@ except ImportError:
     from PySide import QtCore, QtGui
 
 
+def as_str(obj):
+    return '' if obj is None else str(obj)
+
+
 class Data4ExtModel(QtCore.QAbstractTableModel):
     def __init__(self, model):
         super(Data4ExtModel, self).__init__()
@@ -23,7 +27,7 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
     def data(self, index, role):
         if role != QtCore.Qt.DisplayRole or not index.isValid():
             return None
-        return str(self.model.data(index.row(), index.column()))
+        return as_str(self.model.data(index.row(), index.column()))
 
 
 class Header4ExtModel(QtCore.QAbstractTableModel):
@@ -64,7 +68,7 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             cur = self.model.header(self.axis, col, row)
             return self._palette.midlight() if prev != cur else None
         if role != QtCore.Qt.DisplayRole: return None
-        return str(self.model.header(self.axis, col, row))
+        return as_str(self.model.header(self.axis, col, row))
 
 
 class Level4ExtModel(QtCore.QAbstractTableModel):
