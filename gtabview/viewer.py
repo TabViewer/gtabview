@@ -356,11 +356,11 @@ class Viewer(QtGui.QMainWindow):
                 title = "{}: {}".format(metavar, title)
             self.setWindowTitle(title)
 
-        if shape[0] * shape[1] < 1e5:
+        if shape[0] * shape[1] < 16384:
             # resizing materializes the contents and might actually take longer
             # than loading all the data itself, so do it for small tables only
             self.table.resizeColumnsToContents()
-        elif model.header_shape()[1] * shape[0] < 1e5:
+        elif model.header_shape()[1] * shape[0] < 16384:
             # similarly for the index
             self.table.resizeIndexToContents()
 

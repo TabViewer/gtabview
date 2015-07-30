@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, absolute_import, generators
+from __future__ import print_function, unicode_literals, absolute_import, generators, division
+
 from .compat import *
+from collections import deque
 
 
 def getitem(lst, idx, default=None):
@@ -132,6 +134,51 @@ class ExtMatrixModel(ExtDataModel):
         return self._data[y, x]
 
 
+class ExtBlazeModel(ExtDataModel):
+    class Chunk(object):
+        def __init__(self, data, off):
+            self.data = data
+            self.off = off
+
+    def __init__(self, data, chunk_size=16384, lru_size=9):
+        super(ExtBlazeModel, self).__init__()
+        self._data = data
+        self._chunk_size = chunk_size
+        self._shape = (int(data.nrows), len(data.fields))
+        self._lru = deque([], lru_size)
+
+    def shape(self):
+        return self._shape
+
+    def header_shape(self):
+        return (1, 0)
+
+    def _chunk_get(self, off):
+        cols = self._data.fields[off[1]:min(self._shape[1], off[1]+self._chunk_size)]
+        data = list(self._data[cols][off[0]:min(self._shape[0], off[0]+self._chunk_size)])
+        return ExtBlazeModel.Chunk(data, off)
+
+    def _chunk_at(self, y, x):
+        off = (y // self._chunk_size * self._chunk_size,
+               x // self._chunk_size * self._chunk_size)
+        for slot, chunk in enumerate(self._lru):
+            if chunk.off == off:
+                if slot:
+                    self._lru[slot] = self._lru[0]
+                    self._lru[0] = chunk
+                return chunk
+        chunk = self._chunk_get(off)
+        self._lru.appendleft(chunk)
+        return chunk
+
+    def data(self, y, x):
+        chunk = self._chunk_at(y, x)
+        return chunk.data[y - chunk.off[0]][x - chunk.off[1]]
+
+    def header(self, axis, x, level=0):
+        return self._data.fields[x]
+
+
 class ExtFrameModel(ExtDataModel):
     def __init__(self, data):
         super(ExtFrameModel, self).__init__()
@@ -185,6 +232,9 @@ def as_model(data, hdr_rows=0, idx_cols=0, transpose=False):
         if hasattr(data, '__array__') and hasattr(data, 'iat') and \
            hasattr(data, 'index') and hasattr(data, 'columns'):
             model = ExtFrameModel(data)
+        elif hasattr(data, '__array__') and hasattr(data, 'dshape') and \
+             hasattr(data, 'nrows') and hasattr(data, 'fields'):
+            model = ExtBlazeModel(data)
         elif hasattr(data, '__array__') and len(data.shape) >= 2:
             model = ExtMatrixModel(data)
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
