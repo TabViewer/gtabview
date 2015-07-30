@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 import os
 import sys
+import warnings
 
 from .compat import *
 
@@ -79,6 +80,8 @@ def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
             try:
                 data = read_xlrd(fd_or_path, sheet_index)
             except ImportError:
+                warnings.warn("xlrd module not installed")
+            except:
                 pass
     if data is None:
         data = read_csv(fd_or_path, enc, delimiter, hdr_rows)
