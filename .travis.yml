@@ -48,6 +48,10 @@ matrix:
       before_install:
         - pip install -q pandas
     - python: 2.7_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python-qt4
       before_install:
         - pip install -q blaze
     - python: 3.2_with_system_site_packages
@@ -85,6 +89,10 @@ matrix:
       before_install:
         - pip install -q pandas
     - python: 3.2_with_system_site_packages
+      addons:
+        apt:
+          packages:
+            - python3-pyqt4
       before_install:
         - pip install -q blaze
 
