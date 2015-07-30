@@ -47,6 +47,9 @@ matrix:
             - python-matplotlib
       before_install:
         - pip install -q pandas
+    - python: 2.7_with_system_site_packages
+      before_install:
+        - pip install -q blaze
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -81,6 +84,9 @@ matrix:
             - python3-matplotlib
       before_install:
         - pip install -q pandas
+    - python: 3.2_with_system_site_packages
+      before_install:
+        - pip install -q blaze
 
 install:
   - pip install -q coveralls

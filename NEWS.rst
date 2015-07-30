@@ -1,3 +1,9 @@
+gtabview 0.4
+------------
+
+* Added support for Blaze (http://blaze.pydata.org)
+
+
 gtabview 0.3
 ------------
 

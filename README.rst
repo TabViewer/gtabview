@@ -39,15 +39,21 @@ Usage as a module
     # view a simple list of lists (with headers)
     view([['a', 'b', 'c'], [1, 2, 3], [4, 5, 6], [7, 8, 9]], hdr_rows=1)
 
-    # view a DataFrame/Series/Panel
+    # numpy arrays up to two dimensions are supported
+    import numpy as np
+    view(np.array([[1, 2, 3], [4, 5, 6]]))
+
+    # view a Pandas' DataFrame/Series/Panel
     import pandas as pd
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
 		      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
 
-    # numpy is supported as well
-    import numpy as np
-    view(np.array([[1, 2, 3], [4, 5, 6]]))
+    # Blaze can also be used directly as a data source
+    # See: http://blaze.pydata.org/en/latest/uri.html
+    import blaze as bz
+    iris = bz.Data('sqlite:///blaze/examples/data/iris.db::iris')
+    view(iris)
 
 If you're using gtabview with matplotlib either directly or indirectly (for
 example, using the Pandas visualization API or Seaborn), be sure to include
