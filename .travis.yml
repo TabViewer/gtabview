@@ -18,7 +18,7 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - pip uninstall numpy
+        - pip uninstall -q numpy
     - python: 2.7_with_system_site_packages
       addons:
         apt:
@@ -52,7 +52,7 @@ matrix:
           packages:
             - python3-pyqt4
       before_install:
-        - mkdir gtabview/numpy && echo 'raise ImportError()' > gtabview/numpy/__init__.py
+        - pip uninstall -q numpy
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -82,14 +82,14 @@ matrix:
         - pip install -q pandas
 
 install:
-  - pip install coveralls
+  - pip install -q coveralls
   - python setup.py -q install
 
 before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
-  - nosetests -v --with-coverage --cover-package gtabview tests
+  - nosetests -v --with-coverage --cover-package gtabview
 
 after_success:
   - coveralls
