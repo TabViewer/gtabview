@@ -50,7 +50,8 @@ Usage as a module
     view(df)
 
     # Blaze can also be used directly as a data source
-    # See: http://blaze.pydata.org/en/latest/uri.html
+    # See: http://blaze.pydata.org/en/latest/uri.html and
+    #      http://docs.sqlalchemy.org/en/latest/core/engines.html
     import blaze as bz
     iris = bz.Data('sqlite:///blaze/examples/data/iris.db::iris')
     view(iris)
