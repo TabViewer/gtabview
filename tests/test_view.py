@@ -20,3 +20,10 @@ def test_view_csv_latin1():
 
 def test_view_csv_unicode():
     view(os.path.join(SAMPLE_ROOT, "unicode-example-utf8.txt"))
+
+@require('pandas')
+def test_view_frame():
+    import pandas as pd
+    view(pd.DataFrame([[1, 2, 3], [1, 2, 3]],
+                      columns=['a', 'b', 'c'],
+                      index=['x', 'y']))
