@@ -5,6 +5,7 @@ sudo: false
 env:
   global:
     - DISPLAY=:99.0
+    - PIP_DISABLE_PIP_VERSION_CHECK=1
 
 cache:
   directories:
