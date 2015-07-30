@@ -19,7 +19,7 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - mkdir -p $HOME/.local/lib/python/site-packaes/numpy
+        - mkdir -p $HOME/.local/lib/python/site-packages/numpy
         - echo 'raise ImportError()' > $HOME/.local/lib/python/site-packages/numpy/__init__.py
     - python: 2.7_with_system_site_packages
       addons:
