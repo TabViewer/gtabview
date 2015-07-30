@@ -5,6 +5,10 @@ from . import *
 from gtabview.models import as_model
 
 
+def test_model_id():
+    model = as_model([1, 2, 3])
+    assert(as_model(model) is model)
+
 def test_model_vect():
     model = as_model([1, 2, 3])
     assert(model.header_shape() == (0, 0))
