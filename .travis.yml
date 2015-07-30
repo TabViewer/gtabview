@@ -53,7 +53,7 @@ matrix:
           packages:
             - python3-pyqt4
       before_install:
-        - pip uninstall -q numpy
+        - pip uninstall -qy numpy
     - python: 3.2_with_system_site_packages
       addons:
         apt:
