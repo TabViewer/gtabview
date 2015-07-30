@@ -18,7 +18,7 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - mkdir gtabview/numpy && echo 'raise ImportError()' > gtabview/numpy/__init__.py
+        - pip uninstall numpy
     - python: 2.7_with_system_site_packages
       addons:
         apt:
