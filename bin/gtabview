@@ -93,7 +93,7 @@ if __name__ == '__main__':
              hdr_rows=args.header, idx_cols=args.index, sheet_index=args.sheet,
              transpose=args.transpose, metavar=args.filename)
     except KeyboardInterrupt:
-        os._exit(0)
+        sys.exit(0)
     except IOError as e:
         print("gtabview: {}".format(e))
-        os._exit(1)
+        sys.exit(1)
