@@ -8,71 +8,46 @@ env:
 
 matrix:
   include:
-    - python: 2.7
+    - python: 2.7_with_system_site_packages
       before_install:
         - sudo apt-get update -q
         - sudo apt-get install -q python-qt4
-        - sudo apt-get purge -q python-numpy
     - python: 2.7_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python-qt4
-            - python-xlrd
+      before_install:
+        - sudo apt-get update -q
+        - sudo apt-get install -q python-qt4 python-xlrd
     - python: 2.7_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python-qt4
-            - python-matplotlib
+      before_install:
+        - sudo apt-get update -q
+        - sudo apt-get install -q python-qt4 python-matplotlib
     - python: 2.7_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python-qt4
-            - python-pandas
       before_install:
-        - pip install -q pandas
+        - sudo apt-get update -q
+        - sudo apt-get install -q python-qt4 python-pandas
     - python: 2.7_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python-qt4
-            - python-matplotlib
       before_install:
-        - pip install -q pandas
+        - sudo apt-get update -q
+        - sudo apt-get install -q python-qt4 python-matplotlib python-pandas
     - python: 3.2_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python3-pyqt4
-    - python: 3.2_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python3-pyqt4
-            - python3-xlrd
-    - python: 3.2_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python3-pyqt4
-            - python3-matplotlib
-    - python: 3.2_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python3-pyqt4
       before_install:
-        - pip install -q pandas
+        - sudo apt-get update -q
+        - sudo apt-get install -q python3-pyqt4
     - python: 3.2_with_system_site_packages
-      addons:
-        apt:
-          packages:
-            - python3-pyqt4
-            - python3-matplotlib
       before_install:
-        - pip install -q pandas
+        - sudo apt-get update -q
+        - sudo apt-get install -q python3-pyqt4 python3-xlrd
+    - python: 3.2_with_system_site_packages
+      before_install:
+        - sudo apt-get update -q
+        - sudo apt-get install -q python3-pyqt4 python3-matplotlib
+    - python: 3.2_with_system_site_packages
+      before_install:
+        - sudo apt-get update -q
+        - sudo apt-get install -q python3-pyqt4 python3-pandas
+    - python: 3.2_with_system_site_packages
+      before_install:
+        - sudo apt-get update -q
+        - sudo apt-get install -q python3-pyqt4 python3-matplolib python3-pandas
 
 install:
   - pip install -q coveralls
