@@ -19,7 +19,7 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - pip uninstall -q numpy
+        - pip uninstall -qy numpy
     - python: 2.7_with_system_site_packages
       addons:
         apt:
