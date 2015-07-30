@@ -30,6 +30,7 @@ matrix:
         apt:
           packages:
             - python-qt4
+            - python-pandas
       before_install:
         - pip install -q pandas
     - python: 2.7_with_system_site_packages
