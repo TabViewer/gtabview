@@ -25,7 +25,8 @@ matrix:
         apt:
           packages:
             - python-qt4
-            - python-xlrd
+      before_install:
+        - pip install -q xlrd
     - python: 2.7_with_system_site_packages
       addons:
         apt:
@@ -66,7 +67,8 @@ matrix:
         apt:
           packages:
             - python3-pyqt4
-            - python3-xlrd
+      before_install:
+        - pip install -q xlrd
     - python: 3.2_with_system_site_packages
       addons:
         apt:
