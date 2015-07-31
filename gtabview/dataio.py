@@ -78,10 +78,11 @@ def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
         _, ext = os.path.splitext(fd_or_path)
         if ext.lower() in ['.xls', '.xlsx']:
             try:
+                import xlrd
                 data = read_xlrd(fd_or_path, sheet_index)
             except ImportError:
                 warnings.warn("xlrd module not installed")
-            except:
+            except xlrd.XLRDError:
                 pass
     if data is None:
         data = read_csv(fd_or_path, enc, delimiter, hdr_rows)

@@ -16,3 +16,7 @@ def test_skip_empty_line_2():
 def test_hash_headers():
     data, _ = read_table(os.path.join(TDATA_ROOT, 'hash-headers.txt'), None, None, 1)
     assert(data == [['a', 'b', 'c'], ['1', '2', '3']])
+
+def test_xls_fallback():
+    data, _ = read_table(os.path.join(TDATA_ROOT, 'not-xls.xls'), None, None, 1)
+    assert(data == [['a', 'b', 'c'], ['1', '2', '3'], ['4', '5', '6']])
