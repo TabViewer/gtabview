@@ -18,26 +18,28 @@ If xlrd_ is installed, Excel files can be read directly::
 
   gtabview file.xls[x]
 
-If Blaze_ is installed, any Blaze source can be used by specifying any
-supported URI_ on the command line::
+When Blaze_ is also installed, any Blaze source can be used by specifying any
+`supported URI`_ on the command line::
 
   gtabview file://dataset.hdf5
   gtabview file://dataset.json
   gtabview sqlite://file.db::table
   gtabview postgresql://host.domain/db_name::table
 
-The `database URI syntax`_ is inherited from SQLAlchemy.
+The database URL syntax is inherited from SQLAlchemy, so refer to SQLAlchemy's
+`database URLs`_ for a detailed reference.
 
 .. _xlrd: https://pypi.python.org/pypi/xlrd
 .. _Blaze: http://blaze.pydata.org/
-.. _URI: http://blaze.pydata.org/en/latest/uri.html
-.. _database URI syntax: http://docs.sqlalchemy.org/en/latest/core/engines.html
+.. _supported URI: http://blaze.pydata.org/en/latest/uri.html
+.. _database URLs: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 
 
 Usage as a module
 -----------------
 
-View simple Python types:
+``gtabview.view()`` can be used to display simple Python types directly in
+tabulated form:
 
 .. code:: python
 
@@ -91,9 +93,10 @@ implicitly through an URI:
 
     view('postgresql://user:pass@host.domain:port/db_name::table')
 
-If you're using `gtabview` with matplotlib either directly or indirectly (for
-example, using the Pandas visualization API or Seaborn), be sure to include
-matplotlib *first* to correctly initialize `gtabview`.
+`gtabview` is designed to integrate correctly with matplotlib. If you're using
+`gtabview` with matplotlib either directly or indirectly (for example, using
+the Pandas visualization API or Seaborn), be sure to include matplotlib *first*
+to correctly initialize `gtabview`.
 
 `gtabview` will also use matplotlib's ``interactive`` setting to determine the
 default behavior of the data window: when interactive, calls to ``view()`` will
