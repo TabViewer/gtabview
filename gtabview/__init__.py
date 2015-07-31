@@ -115,14 +115,27 @@ def _varname_in_stack(var, skip):
     return None
 
 
+def blaze_from_uri(uri):
+    import blaze as bz
+
+    # make file:// uris work uniformly
+    if uri.startswith('file://'):
+        uri = uri[7:]
+
+    return bz.Data(uri)
+
+
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          idx_cols=None, sheet_index=0, transpose=False, wait=None,
          recycle=None, detach=None, metavar=None, title=None):
     global WAIT, RECYCLE, DETACH, VIEW
 
-    # if data is a file/path, read it
+    # if data is a uri/file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
+        if isinstance(data, basestring) and '://' in data:
+            data = blaze_from_uri(data)
+        else:
+            data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
 
     # only assume an header when loading from a file
     if hdr_rows is None: hdr_rows = 0
