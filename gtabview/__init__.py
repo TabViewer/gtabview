@@ -122,9 +122,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
 
     # if data is a file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        data = read_table(data, enc, delimiter, hdr_rows, sheet_index)
-        if hdr_rows is None:
-            hdr_rows = 1 if len(data) > 1 else 0
+        data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
 
     # only assume an header when loading from a file
     if hdr_rows is None: hdr_rows = 0

@@ -108,4 +108,4 @@ def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
         if empty:
             del data[hdr_rows]
 
-    return data
+    return data, hdr_rows
