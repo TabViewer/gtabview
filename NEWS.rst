@@ -2,6 +2,7 @@ gtabview 0.4
 ------------
 
 * Added support for Blaze (http://blaze.pydata.org)
+* Improved documentation.
 
 
 gtabview 0.3
@@ -17,4 +18,4 @@ gtabview 0.2
 ------------
 
 * Fix visualization of ``np.matrix`` types.
-* Allow to transpose the data.
+* Allow data transposition.
