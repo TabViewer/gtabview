@@ -116,13 +116,13 @@ def _varname_in_stack(var, skip):
 
 
 def blaze_from_uri(uri):
-    import blaze as bz
+    import blaze
 
     # make file:// uris work uniformly
     if uri.startswith('file://'):
         uri = uri[7:]
 
-    return bz.Data(uri)
+    return blaze.Data(uri)
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
