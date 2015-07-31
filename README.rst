@@ -9,13 +9,35 @@ module for various files and Python/Pandas/NumPy data structures.
 Stand-alone usage
 -----------------
 
-`gtabview` reads most tabular data formats automatically::
+`gtabview` reads most text tabular data formats automatically::
 
   gtabview data.csv
+  gtabview data.txt
+
+If xlrd_ is installed, Excel files can be read directly::
+
+  gtabview file.xls[x]
+
+If Blaze_ is installed, any Blaze source can be used by specifying any
+supported URI_ on the command line::
+
+  gtabview file://dataset.hdf5
+  gtabview file://dataset.json
+  gtabview sqlite://file.db::table
+  gtabview postgresql://host.domain/db_name::table
+
+The `database URI syntax`_ is inherited from SQLAlchemy.
+
+.. _xlrd: https://pypi.python.org/pypi/xlrd
+.. _Blaze: http://blaze.pydata.org/
+.. _URI: http://blaze.pydata.org/en/latest/uri.html
+.. _database URI syntax: http://docs.sqlalchemy.org/en/latest/core/engines.html
 
 
 Usage as a module
 -----------------
+
+View simple Python types:
 
 .. code:: python
 
@@ -39,28 +61,41 @@ Usage as a module
     # view a simple list of lists (with headers)
     view([['a', 'b', 'c'], [1, 2, 3], [4, 5, 6], [7, 8, 9]], hdr_rows=1)
 
+`gtabview` includes native support for NumPy and all features of Pandas'
+DataFrames, such as MultiIndexes and level names:
+
+.. code:: python
+
+    from gtabview import view
+
     # numpy arrays up to two dimensions are supported
     import numpy as np
     view(np.array([[1, 2, 3], [4, 5, 6]]))
 
-    # view a Pandas' DataFrame/Series/Panel
+    # view a DataFrame/Series/Panel
     import pandas as pd
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
 		      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
 
-    # Blaze can also be used directly as a data source
-    # See: http://blaze.pydata.org/en/latest/uri.html and
-    #      http://docs.sqlalchemy.org/en/latest/core/engines.html
+Blaze can also be used directly as a data source, either explicitly or
+implicitly through an URI:
+
+.. code:: python
+
+    from gtabview import view
     import blaze as bz
+
     iris = bz.Data('sqlite:///blaze/examples/data/iris.db::iris')
     view(iris)
 
-If you're using gtabview with matplotlib either directly or indirectly (for
-example, using the Pandas visualization API or Seaborn), be sure to include
-matplotlib first to correctly initialize gtabview.
+    view('postgresql://user:pass@host.domain:port/db_name::table')
 
-gtabview will also use matplotlib's ``interactive`` setting to determine the
+If you're using `gtabview` with matplotlib either directly or indirectly (for
+example, using the Pandas visualization API or Seaborn), be sure to include
+matplotlib *first* to correctly initialize `gtabview`.
+
+`gtabview` will also use matplotlib's ``interactive`` setting to determine the
 default behavior of the data window: when interactive, calls to ``view()`` will
 not block, and will keep recycling the same window.
 
