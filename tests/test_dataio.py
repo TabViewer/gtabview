@@ -20,3 +20,8 @@ def test_hash_headers():
 def test_xls_fallback():
     data, _ = read_table(os.path.join(TDATA_ROOT, 'not-xls.xls'), None, None, 1)
     assert(data == [['a', 'b', 'c'], ['1', '2', '3'], ['4', '5', '6']])
+
+@require('xlrd')
+def test_xls_read():
+    data, _ = read_table(os.path.join(TDATA_ROOT, 'simple.xls'), None, None, 1)
+    assert(data == [['a', 'b', 'c'], [1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
