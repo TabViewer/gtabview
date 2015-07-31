@@ -128,6 +128,48 @@ def blaze_from_uri(uri):
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          idx_cols=None, sheet_index=0, transpose=False, wait=None,
          recycle=None, detach=None, metavar=None, title=None):
+    """View the supplied data in an interactive, graphical table widget.
+
+    data: When a valid path or IO object, read it as a tabular text file. When
+          a valid URI, a Blaze object is constructed and visualized. Any other
+          supported datatype is visualized directly and incrementally *without
+          copying*.
+
+    enc: File encoding (such as "utf-8", normally autodetected).
+
+    delimiter: Text file delimiter (normally autodetected).
+
+    hdr_rows: For files or lists of lists, specify the number of header rows.
+              For files only, a default of one header line is assumed.
+
+    idx_cols: For files or lists of lists, specify the number of index columns.
+              By default, no index is assumed.
+
+    sheet_index: For multi-table files (such as xls[x]), specify the sheet
+                 index to read, starting from 0. Defaults to the first.
+
+    start_pos: A tuple of the form (y, x) specifying the initial cursor
+               position. Negative offsets count from the end of the dataset.
+
+    transpose: Transpose the resulting view.
+
+    metavar: name of the variable being shown for display purposes (inferred
+             automatically when possible).
+
+    title: title of the data window.
+
+    wait: Wait for the user to close the view before returning. By default, try
+          to match the behavior of ``matplotlib.is_interactive()``. If
+          matplotlib is not loaded, wait only if ``detach`` is also False. The
+          default value can also be set through ``gtabview.WAIT``.
+
+    recycle: Recycle the previous window instead of creating a new one. The
+             default is True, and can also be set through ``gtabview.RECYCLE``.
+
+    detach: Create a fully detached GUI thread for interactive use (note: this
+            is *not* necessary if matplotlib is loaded). The default is False,
+            and can also be set through ``gtabview.DETACH``.
+    """
     global WAIT, RECYCLE, DETACH, VIEW
 
     # if data is a uri/file/path, read it
