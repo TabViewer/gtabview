@@ -115,14 +115,14 @@ def _varname_in_stack(var, skip):
     return None
 
 
-def blaze_from_uri(uri):
+def blaze_from_uri(uri, enc):
     import blaze
 
     # make file:// uris work uniformly
     if uri.startswith('file://'):
         uri = uri[7:]
 
-    return blaze.Data(uri)
+    return blaze.Data(uri, encoding=enc)
 
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
@@ -175,7 +175,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     # if data is a uri/file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
         if isinstance(data, basestring) and '://' in data:
-            data = blaze_from_uri(data)
+            data = blaze_from_uri(data, enc)
         else:
             data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
 
