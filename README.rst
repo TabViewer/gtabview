@@ -18,7 +18,7 @@ If xlrd_ is installed, Excel files can be read directly::
 
   gtabview file.xls[x]
 
-When Blaze_ is also installed, any Blaze source can be used by specifying any
+When Blaze_ is also installed, any Blaze source can be used by specifying a
 `supported URI`_ on the command line::
 
   gtabview file://dataset.hdf5
@@ -124,9 +124,11 @@ Then download and install simply via pip::
 
   pip install gtabview
 
-Excel files are supported if the ``xlrd`` module is also installed::
+Install ``xlrd`` if reading Excel files directly is desired, and optionally
+Blaze for interacting with other/scientific data formats::
 
   pip install xlrd
+  pip install blaze
 
 
 License
