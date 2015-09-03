@@ -75,6 +75,11 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
     def __init__(self, model, palette, font):
         super(Level4ExtModel, self).__init__()
         self.model = model
+        self._background = palette.dark().color()
+        if self._background.lightness() > 127:
+            self._foreground = palette.text()
+        else:
+            self._foreground = palette.highlightedText()
         self._palette = palette
         font.setBold(True)
         self._font = font
@@ -102,13 +107,17 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
         if index.row() == self.model.header_shape()[0] - 1:
             if role == QtCore.Qt.DisplayRole:
                 return str(self.model.name(1, index.column()))
+            elif role == QtCore.Qt.ForegroundRole:
+                return self._foreground
             elif role == QtCore.Qt.BackgroundRole:
-                return self._palette.shadow()
+                return self._background
         elif index.column() == self.model.header_shape()[1] - 1:
             if role == QtCore.Qt.DisplayRole:
                 return str(self.model.name(0, index.row()))
+            elif role == QtCore.Qt.ForegroundRole:
+                return self._foreground
             elif role == QtCore.Qt.BackgroundRole:
-                return self._palette.shadow()
+                return self._background
         elif role == QtCore.Qt.BackgroundRole:
             return self._palette.background()
         return None
@@ -125,9 +134,9 @@ class ExtTableView(QtGui.QWidget):
         # palette though, we also have to manually assign a new stock delegate
         # to each table view
         palette = self.palette()
-        palette.setBrush(QtGui.QPalette.Inactive,
-                         QtGui.QPalette.Highlight,
-                         self.palette().windowText())
+        tmp = palette.highlight().color()
+        tmp.setHsv(tmp.hsvHue(), 100, palette.midlight().color().lightness())
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, tmp)
         self.setPalette(palette)
 
         layout = QtGui.QGridLayout()
