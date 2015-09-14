@@ -1,3 +1,10 @@
+gtabview 0.5
+------------
+
+* Correctly pass user-supplied encoding to Blaze.
+* Fix color palette selection on Windows.
+
+
 gtabview 0.4
 ------------
 
