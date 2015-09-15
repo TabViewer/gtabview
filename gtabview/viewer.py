@@ -28,7 +28,10 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
         return max(1, self.model.shape()[1])
 
     def data(self, index, role):
-        if role != QtCore.Qt.DisplayRole or not index.isValid():
+        if role != QtCore.Qt.DisplayRole:
+            return None
+        if index.row() >= self.model.shape()[0] or \
+           index.column() >= self.model.shape()[1]:
             return None
         return as_str(self.model.data(index.row(), index.column()))
 
@@ -62,7 +65,9 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             self.model.name(self.axis, section)
 
     def data(self, index, role):
-        if not index.isValid() or not self._shape[self.axis]:
+        if not index.isValid() or \
+           index.row() >= self._shape[0] or \
+           index.column() >= self._shape[1]:
             return None
         row, col = (index.row(), index.column()) if self.axis == 0 \
                    else (index.column(), index.row())
@@ -70,7 +75,8 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             prev = self.model.header(self.axis, col - 1, row) if col else None
             cur = self.model.header(self.axis, col, row)
             return self._palette.midlight() if prev != cur else None
-        if role != QtCore.Qt.DisplayRole: return None
+        if role != QtCore.Qt.DisplayRole:
+            return None
         return as_str(self.model.header(self.axis, col, row))
 
 
