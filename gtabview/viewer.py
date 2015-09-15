@@ -201,6 +201,10 @@ class ExtTableView(QtGui.QWidget):
         layout.addWidget(self.hscroll, 2, 0, 2, 2)
         layout.addWidget(self.vscroll, 0, 2, 2, 2)
 
+        avg_width = self.fontMetrics().averageCharWidth()
+        self.min_trunc = avg_width * 8
+        self.max_width = avg_width * 64
+
 
     def _select_columns(self, source, dest, deselect):
         if self._selection_rec: return
@@ -320,26 +324,24 @@ class ExtTableView(QtGui.QWidget):
             self.table_data.model().index(y, x),
             QtGui.QItemSelectionModel.ClearAndSelect)
 
-    def resizeIndexToContents(self):
-        for col in range(self._model.header_shape()[1]):
-            hdr_width = self.table_level.sizeHintForColumn(col)
-            idx_width = self.table_index.sizeHintForColumn(col)
-            if idx_width > hdr_width or hdr_width > idx_width * 2:
-                width = idx_width
+    def _resizeColumnsToContents(self, header, data):
+        for col in range(self._model.shape()[1]):
+            hdr_width = header.sizeHintForColumn(col)
+            data_width = data.sizeHintForColumn(col)
+            if data_width > hdr_width:
+                width = min(self.max_width, data_width)
+            elif hdr_width > data_width * 2:
+                width = max(min(hdr_width, self.min_trunc), min(self.max_width, data_width))
             else:
-                width = hdr_width
-            self.table_level.setColumnWidth(col, width)
+                width = min(self.max_width, hdr_width)
+            header.setColumnWidth(col, width)
+
+    def resizeIndexToContents(self):
+        self._resizeColumnsToContents(self.table_level, self.table_index)
         self._update_layout()
 
     def resizeColumnsToContents(self):
-        for col in range(self._model.shape()[1]):
-            hdr_width = self.table_header.sizeHintForColumn(col)
-            data_width = self.table_data.sizeHintForColumn(col)
-            if data_width > hdr_width or hdr_width > data_width * 2:
-                width = data_width
-            else:
-                width = hdr_width
-            self.table_header.setColumnWidth(col, width)
+        self._resizeColumnsToContents(self.table_header, self.table_data)
         self.resizeIndexToContents()
 
 
