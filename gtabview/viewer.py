@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
 from .compat import *
+import math
 
 # Support PyQt4/PySide with either Python 2/3
 try:
@@ -10,7 +11,9 @@ except ImportError:
 
 
 def as_str(obj):
-    return '' if obj is None else str(obj)
+    if obj is None: return ''
+    if isinstance(obj, float) and math.isnan(obj): return ''
+    return str(obj)
 
 
 class Data4ExtModel(QtCore.QAbstractTableModel):
