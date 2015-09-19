@@ -3,6 +3,9 @@ from __future__ import print_function, unicode_literals, absolute_import, genera
 from .compat import *
 import math
 
+AUTOSIZE_LIMIT = 128
+
+
 # Support PyQt4/PySide with either Python 2/3
 try:
     from PyQt4 import QtCore, QtGui
@@ -330,25 +333,37 @@ class ExtTableView(QtGui.QWidget):
             self.table_data.model().index(y, x),
             QtGui.QItemSelectionModel.ClearAndSelect)
 
-    def _resizeColumnsToContents(self, header, data):
-        for col in range(self._model.shape()[1]):
-            hdr_width = header.sizeHintForColumn(col)
-            data_width = data.sizeHintForColumn(col)
-            if data_width > hdr_width:
-                width = min(self.max_width, data_width)
-            elif hdr_width > data_width * 2:
-                width = max(min(hdr_width, self.min_trunc), min(self.max_width, data_width))
-            else:
-                width = min(self.max_width, hdr_width)
-            header.setColumnWidth(col, width)
+    def _sizeHintForColumn(self, table, col, limit):
+        if limit is None or limit >= table.model().rowCount():
+            return table.sizeHintForColumn(col)
+        max_width = 0
+        for row in range(min(table.model().rowCount(), limit)):
+            v = table.sizeHintForIndex(table.model().index(row, col))
+            max_width = max(max_width, v.width())
+        return max_width
 
-    def resizeIndexToContents(self):
-        self._resizeColumnsToContents(self.table_level, self.table_index)
+    def _resizeColumnToContents(self, header, data, col, limit):
+        hdr_width = self._sizeHintForColumn(header, col, limit)
+        data_width = self._sizeHintForColumn(data, col, limit)
+        if data_width > hdr_width:
+            width = min(self.max_width, data_width)
+        elif hdr_width > data_width * 2:
+            width = max(min(hdr_width, self.min_trunc), min(self.max_width, data_width))
+        else:
+            width = min(self.max_width, hdr_width)
+        header.setColumnWidth(col, width)
+
+    def _resizeColumnsToContents(self, header, data, limit):
+        max_col = self._model.shape()[1]
+        if limit is not None:
+            max_col = min(max_col, limit)
+        for col in range(max_col):
+            self._resizeColumnToContents(header, data, col, limit)
+
+    def resizeColumnsToContents(self, limit=None):
+        self._resizeColumnsToContents(self.table_header, self.table_data, limit)
+        self._resizeColumnsToContents(self.table_level, self.table_index, limit)
         self._update_layout()
-
-    def resizeColumnsToContents(self):
-        self._resizeColumnsToContents(self.table_header, self.table_data)
-        self.resizeIndexToContents()
 
 
 class Viewer(QtGui.QMainWindow):
@@ -376,13 +391,9 @@ class Viewer(QtGui.QMainWindow):
                 title = "{}: {}".format(metavar, title)
             self.setWindowTitle(title)
 
-        if shape[0] * shape[1] < 16384:
-            # resizing materializes the contents and might actually take longer
-            # than loading all the data itself, so do it for small tables only
-            self.table.resizeColumnsToContents()
-        elif model.header_shape()[1] * shape[0] < 16384:
-            # similarly for the index
-            self.table.resizeIndexToContents()
+        # resizing materializes the contents and might actually take longer
+        # than loading all the data itself, so do it only on a single chunk
+        self.table.resizeColumnsToContents(min(AUTOSIZE_LIMIT, model.chunk_size()))
 
         self.table.setFocus()
         if start_pos:

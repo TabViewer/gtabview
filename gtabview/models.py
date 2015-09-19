@@ -4,6 +4,9 @@ from __future__ import print_function, unicode_literals, absolute_import, genera
 from .compat import *
 from collections import deque
 
+DEFAULT_CHUNK_SIZE = 16384
+DEFAULT_LRU_SIZE   = 9
+
 
 def getitem(lst, idx, default=None):
     return lst[idx] if idx < len(lst) else default
@@ -28,7 +31,11 @@ class ExtDataModel(object):
     def name(self, axis, level):
         return 'L' + str(level)
 
+    def chunk_size(self):
+        return max(*self.shape())
+
     def transpose(self):
+        # TODO: remove from base model
         return TransposedExtDataModel(self)
 
 
@@ -140,7 +147,7 @@ class ExtBlazeModel(ExtDataModel):
             self.data = data
             self.off = off
 
-    def __init__(self, data, chunk_size=16384, lru_size=9):
+    def __init__(self, data, chunk_size=DEFAULT_CHUNK_SIZE, lru_size=DEFAULT_LRU_SIZE):
         super(ExtBlazeModel, self).__init__()
         self._data = data
         self._chunk_size = chunk_size
@@ -177,6 +184,9 @@ class ExtBlazeModel(ExtDataModel):
 
     def header(self, axis, x, level=0):
         return self._data.fields[x]
+
+    def chunk_size(self):
+        return self._chunk_size
 
 
 class ExtFrameModel(ExtDataModel):
