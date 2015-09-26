@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
 from .compat import *
+from . import models
 import math
+
+AUTOSIZE_LIMIT = models.DEFAULT_CHUNK_SIZE
+
 
 # Support PyQt4/PySide with either Python 2/3
 try:
@@ -339,10 +343,12 @@ class ExtTableView(QtGui.QWidget):
             QtGui.QItemSelectionModel.ClearAndSelect)
 
     def _sizeHintForColumn(self, table, col, limit):
-        if limit is None or limit >= table.model().rowCount():
-            return table.sizeHintForColumn(col)
+        # TODO: use current chunk boundaries, do not start from the beginning
+        max_row = table.model().rowCount()
+        if limit is not None:
+            max_row = min(max_row, limit)
         max_width = 0
-        for row in range(min(table.model().rowCount(), limit)):
+        for row in range(max_row):
             v = table.sizeHintForIndex(table.model().index(row, col))
             max_width = max(max_width, v.width())
         return max_width
@@ -428,7 +434,7 @@ class Viewer(QtGui.QMainWindow):
 
         # resizing materializes the contents and might actually take longer
         # than loading all the data itself, so do it only on a single chunk
-        self.table.resizeColumnsToContents(model.chunk_size())
+        self.table.resizeColumnsToContents(min(AUTOSIZE_LIMIT, model.chunk_size()))
 
         self.table.setFocus()
         if start_pos:
