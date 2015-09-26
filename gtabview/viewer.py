@@ -359,7 +359,7 @@ class ExtTableView(QtGui.QWidget):
         header.setColumnWidth(col, width)
 
     def _resizeColumnsToContents(self, header, data, limit):
-        max_col = self._model.shape()[1]
+        max_col = data.model().columnCount()
         if limit is not None:
             max_col = min(max_col, limit)
         for col in range(max_col):
