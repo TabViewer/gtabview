@@ -376,20 +376,22 @@ class ExtTableView(QtGui.QWidget):
         end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
         end = width if end == -1 else end + 1
         while col < end:
+            resized = False
             if col not in self._autosized_cols:
                 self._autosized_cols.add(col)
+                resized = True
                 self._resizeColumnToContents(self.table_header, self.table_data,
                                              col, self._autosize_limit)
-            # as we resize columns, the boundary will change
             col += 1
-            end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
-            end = width if end == -1 else end + 1
+            if resized:
+                # as we resize columns, the boundary will change
+                end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
+                end = width if end == -1 else end + 1
 
     def _resizeCurrentColumnToContents(self, new_index, old_index):
         if new_index.column() not in self._autosized_cols:
             # ensure the requested column is fully into view after resizing
             self._resizeVisibleColumnsToContents()
-            self.hscroll.setMaximum(self.table_data.rect().width())
             self.table_data.scrollTo(new_index)
 
     def resizeColumnsToContents(self, limit=None):
