@@ -3,9 +3,6 @@ from __future__ import print_function, unicode_literals, absolute_import, genera
 from .compat import *
 import math
 
-AUTOSIZE_LIMIT = 128
-
-
 # Support PyQt4/PySide with either Python 2/3
 try:
     from PyQt4 import QtCore, QtGui
@@ -210,6 +207,12 @@ class ExtTableView(QtGui.QWidget):
         layout.addWidget(self.hscroll, 2, 0, 2, 2)
         layout.addWidget(self.vscroll, 0, 2, 2, 2)
 
+        # autosize columns on-demand
+        self._autosized_cols = set()
+        self._autosize_limit = None
+        self.hscroll.sliderMoved.connect(self._resizeVisibleColumnsToContents)
+        self.table_data.installEventFilter(self)
+
         avg_width = self.fontMetrics().averageCharWidth()
         self.min_trunc = avg_width * 8
         self.max_width = avg_width * 64
@@ -285,6 +288,7 @@ class ExtTableView(QtGui.QWidget):
                         self.table_level.verticalHeader().width()
         self.table_index.setFixedWidth(idx_width)
         self.table_level.setFixedWidth(idx_width)
+        self._resizeVisibleColumnsToContents()
 
 
     def _reset_model(self, table, model):
@@ -302,6 +306,7 @@ class ExtTableView(QtGui.QWidget):
             lambda *_: self._select_columns(self.table_data, self.table_header, self.table_level))
         sel_model.selectionChanged.connect(
             lambda *_: self._select_rows(self.table_data, self.table_index, self.table_level))
+        sel_model.currentColumnChanged.connect(self._resizeCurrentColumnToContents)
 
         self._reset_model(self.table_level, Level4ExtModel(model, self.palette(), self.font()))
         sel_model = self.table_level.selectionModel()
@@ -360,8 +365,36 @@ class ExtTableView(QtGui.QWidget):
         for col in range(max_col):
             self._resizeColumnToContents(header, data, col, limit)
 
+    def eventFilter(self, obj, event):
+        if obj == self.table_data and event.type() == QtCore.QEvent.Resize:
+            self._resizeVisibleColumnsToContents()
+        return False
+
+    def _resizeVisibleColumnsToContents(self):
+        col = self.table_data.columnAt(self.table_data.rect().topLeft().x())
+        width = self._model.shape()[1]
+        end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
+        end = width if end == -1 else end + 1
+        while col < end:
+            if col not in self._autosized_cols:
+                self._autosized_cols.add(col)
+                self._resizeColumnToContents(self.table_header, self.table_data,
+                                             col, self._autosize_limit)
+            # as we resize columns, the boundary will change
+            col += 1
+            end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
+            end = width if end == -1 else end + 1
+
+    def _resizeCurrentColumnToContents(self, new_index, old_index):
+        if new_index.column() not in self._autosized_cols:
+            # ensure the requested column is fully into view after resizing
+            self._resizeVisibleColumnsToContents()
+            self.hscroll.setMaximum(self.table_data.rect().width())
+            self.table_data.scrollTo(new_index)
+
     def resizeColumnsToContents(self, limit=None):
-        self._resizeColumnsToContents(self.table_header, self.table_data, limit)
+        self._autosized_cols = set()
+        self._autosize_limit = limit
         self._resizeColumnsToContents(self.table_level, self.table_index, limit)
         self._update_layout()
 
@@ -393,7 +426,7 @@ class Viewer(QtGui.QMainWindow):
 
         # resizing materializes the contents and might actually take longer
         # than loading all the data itself, so do it only on a single chunk
-        self.table.resizeColumnsToContents(min(AUTOSIZE_LIMIT, model.chunk_size()))
+        self.table.resizeColumnsToContents(model.chunk_size())
 
         self.table.setFocus()
         if start_pos:
