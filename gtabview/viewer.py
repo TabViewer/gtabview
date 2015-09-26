@@ -5,6 +5,8 @@ from . import models
 import math
 
 AUTOSIZE_LIMIT = models.DEFAULT_CHUNK_SIZE
+MIN_TRUNC_CHARS = 8
+MAX_WIDTH_CHARS = 64
 
 
 # Support PyQt4/PySide with either Python 2/3
@@ -218,8 +220,8 @@ class ExtTableView(QtGui.QWidget):
         self.table_data.installEventFilter(self)
 
         avg_width = self.fontMetrics().averageCharWidth()
-        self.min_trunc = avg_width * 8
-        self.max_width = avg_width * 64
+        self.min_trunc = avg_width * MIN_TRUNC_CHARS
+        self.max_width = avg_width * MAX_WIDTH_CHARS
 
 
     def _select_columns(self, source, dest, deselect):
