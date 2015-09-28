@@ -1,3 +1,11 @@
+gtabview 0.6
+------------
+
+* Improved column auto-sizing.
+* NaNs (as None) are now also displayed as empty cells.
+* Empty structures no longer cause view() to fail.
+
+
 gtabview 0.5
 ------------
 

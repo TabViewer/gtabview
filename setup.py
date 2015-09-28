@@ -8,7 +8,7 @@ long_description = (readme + "\n\nLatest release notes\n====================\n"
                     + '\n'.join(news.split('\n\n\n', 1)[0].splitlines()[2:]))
 
 # the actual setup
-setup(name='gtabview', version='0.5',
+setup(name='gtabview', version='0.6',
       description='A simple graphical tabular data viewer',
 
       author="Yuri D'Elia",
