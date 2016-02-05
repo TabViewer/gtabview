@@ -67,7 +67,8 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
                 return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         if role != QtCore.Qt.DisplayRole:
             return None
-        return section if self.axis == (orientation - 1) else \
+        orient_axis = 0 if orientation == QtCore.Qt.Horizontal else 1
+        return section if self.axis == orient_axis else \
             self.model.name(self.axis, section)
 
     def data(self, index, role):
@@ -134,7 +135,7 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
             elif role == QtCore.Qt.BackgroundRole:
                 return self._background
         elif role == QtCore.Qt.BackgroundRole:
-            return self._palette.background()
+            return self._palette.window()
         return None
 
 
