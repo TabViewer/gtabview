@@ -6,12 +6,16 @@ env:
   global:
     - DISPLAY=:99.0
     - PIP_DISABLE_PIP_VERSION_CHECK=1
+  matrix:
+    - TRAVIS_4681_WORKAROUND=1
 
 cache:
   directories:
     - $HOME/.cache/pip
 
 matrix:
+  exclude:
+    - env: TRAVIS_4681_WORKAROUND=1
   include:
     - python: 2.7_with_system_site_packages
       addons:
@@ -74,7 +78,8 @@ matrix:
         apt:
           packages:
             - python3-pyqt4
-            - python3-matplotlib
+      before_install:
+        - pip install -q matplotlib
     - python: 3.2_with_system_site_packages
       addons:
         apt:
@@ -87,11 +92,11 @@ matrix:
         apt:
           packages:
             - python3-pyqt4
-            - python3-matplotlib
       before_install:
-        - pip install -q pandas
+        - pip install -q pandas matplotlib
 
 install:
+  - if [ "$TRAVIS_PYTHON_VERSION" = '3.2_with_system_site_packages' ]; then pip install 'coverage<4'; fi
   - pip install -q coveralls
   - python setup.py -q install
 
