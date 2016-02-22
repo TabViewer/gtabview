@@ -96,9 +96,9 @@ matrix:
         - pip install -q pandas matplotlib
 
 install:
-  - if [ "$TRAVIS_PYTHON_VERSION" = '3.2_with_system_site_packages' ]; then pip install 'coverage<4'; fi
+  - if [ "$TRAVIS_PYTHON_VERSION" = '3.2_with_system_site_packages' ]; then pip install -q 'coverage<4'; fi
   - pip install -q coveralls
-  - python setup.py -q install
+  - python setup.py install
 
 before_script:
   - sh -e /etc/init.d/xvfb start
