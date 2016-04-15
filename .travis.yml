@@ -86,14 +86,14 @@ matrix:
           packages:
             - python3-pyqt4
       before_install:
-        - pip install -q pandas
+        - pip install -q 'pandas<0.18'
     - python: 3.2_with_system_site_packages
       addons:
         apt:
           packages:
             - python3-pyqt4
       before_install:
-        - pip install -q pandas matplotlib
+        - pip install -q 'pandas<0.18' matplotlib
 
 install:
   - if [ "$TRAVIS_PYTHON_VERSION" = '3.2_with_system_site_packages' ]; then pip install -q 'coverage<4'; fi
