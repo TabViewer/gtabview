@@ -25,6 +25,7 @@ RECYCLE = True  # Keep reusing the same window instead of creating new ones
 DETACH = False  # Create a fully autonomous GUI thread
 
 # Global ViewControler for instance recycling
+APP = None
 VIEW = None
 
 
@@ -34,15 +35,16 @@ class ViewController(object):
         self._view = None
 
     def view(self, data, view_kwargs, wait, recycle):
-        app = QtGui.QApplication.instance()
-        if app is None:
-            app = QtGui.QApplication([])
+        global APP
+        APP = QtGui.QApplication.instance()
+        if APP is None:
+            APP = QtGui.QApplication([])
         if self._view is None or not recycle:
             self._view = Viewer()
         self._view.view(data, **view_kwargs)
         if wait:
             while self._view.isVisible():
-                app.processEvents(QtCore.QEventLoop.AllEvents |
+                APP.processEvents(QtCore.QEventLoop.AllEvents |
                                   QtCore.QEventLoop.WaitForMoreEvents)
 
 
@@ -59,13 +61,14 @@ class DetachedViewController(threading.Thread):
             return super(DetachedViewController, self).is_alive()
 
     def run(self):
-        app = QtGui.QApplication.instance()
-        if app is not None:
+        global APP
+        APP = QtGui.QApplication.instance()
+        if APP is not None:
             warnings.warn("cannot detach: QApplication already initialized",
                           category=RuntimeWarning)
             self._lock.release()
             return
-        app = QtGui.QApplication([])
+        APP = QtGui.QApplication([])
         self._view = Viewer()
         self._lock.release()
         while True:
@@ -77,14 +80,14 @@ class DetachedViewController(threading.Thread):
                         self._view = Viewer()
                     self._view.view(self._data['data'], **self._data['view_kwargs'])
                     self._data = None
-            app.processEvents(QtCore.QEventLoop.AllEvents |
+            APP.processEvents(QtCore.QEventLoop.AllEvents |
                               QtCore.QEventLoop.WaitForMoreEvents)
             with self._lock:
                 self._lock.notify()
 
     def _notify(self):
-        app = QtGui.QApplication.instance()
-        app.postEvent(self._view, QtCore.QEvent(0))
+        global APP
+        APP.postEvent(self._view, QtCore.QEvent(0))
 
     def exit(self):
         with self._lock:
