@@ -421,6 +421,7 @@ class Viewer(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         self.closed = True
+        super(Viewer, self).closeEvent(event)
 
     def view(self, model, hdr_rows=None, idx_cols=None,
              start_pos=None, metavar=None, title=None):
