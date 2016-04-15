@@ -1,3 +1,10 @@
+gtabview 0.6.1
+--------------
+
+* Fix exception with PySide.
+* Fix segmentation fault in repeated calls to view() in stand-alone programs.
+
+
 gtabview 0.6
 ------------
 
