@@ -1,2 +1,2 @@
-exclude .gitignore
-exclude .travis.yml
+global-exclude .git*
+global-exclude .travis.*
