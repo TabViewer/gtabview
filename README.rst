@@ -102,6 +102,20 @@ to correctly initialize `gtabview`.
 default behavior of the data window: when interactive, calls to ``view()`` will
 not block, and will keep recycling the same window.
 
+To use `gtabview` in a Python Notebook with inline graphics, you'll probably
+want to force the detached behavior. In the first cell of your notebook,
+initialize both `gtabview` and `matplotlib` as follows:
+
+.. code:: python
+
+  import gtabview
+  gtabview.DETACH = True
+  from gtabview import view
+  %matplotlib inline
+
+When using ``view``, a *separate* data window will show. The window can be kept
+around or closed, but will only be refreshed when evaluating the cell again.
+
 
 Requirements and installation
 -----------------------------
