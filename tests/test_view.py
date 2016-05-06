@@ -39,3 +39,8 @@ def test_view_frame():
     view(pd.DataFrame([[1, 2, 3], [1, 2, 3]],
                       columns=['a', 'b', 'c'],
                       index=['x', 'y']))
+
+@require('pandas')
+def test_view_frame():
+    import pandas as pd
+    view(pd.DataFrame())
