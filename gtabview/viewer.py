@@ -3,10 +3,11 @@ from __future__ import print_function, unicode_literals, absolute_import, genera
 from .compat import *
 from . import models
 import math
+import time
 
-AUTOSIZE_LIMIT = models.DEFAULT_CHUNK_SIZE
-MIN_TRUNC_CHARS = 8
-MAX_WIDTH_CHARS = 64
+MAX_AUTOSIZE_MS = 150   # Milliseconds given (at most) to perform column auto-sizing
+MIN_TRUNC_CHARS = 8     # Minimum size (in characters) given to columns
+MAX_WIDTH_CHARS = 64    # Maximum size (in characters) given to columns
 
 
 # Support PyQt4/PySide with either Python 2/3
@@ -216,7 +217,7 @@ class ExtTableView(QtGui.QWidget):
 
         # autosize columns on-demand
         self._autosized_cols = set()
-        self._autosize_limit = None
+        self._max_autosize_ms = None
         self.hscroll.sliderMoved.connect(self._resizeVisibleColumnsToContents)
         self.table_data.installEventFilter(self)
 
@@ -305,7 +306,11 @@ class ExtTableView(QtGui.QWidget):
             del old_sel_model
 
 
-    def setModel(self, model):
+    def setAutosizeLimit(self, limit_ms):
+        self._max_autosize_ms = limit_ms
+
+
+    def setModel(self, model, relayout=True):
         self._model = model
         self._reset_model(self.table_data, Data4ExtModel(model))
         sel_model = self.table_data.selectionModel()
@@ -337,7 +342,7 @@ class ExtTableView(QtGui.QWidget):
             lambda *_: self._select_columns(self.table_index, self.table_level, self.table_header))
 
         # needs to be called after setting all table models
-        self._update_layout()
+        if relayout: self._update_layout()
 
 
     def setCurrentIndex(self, y, x):
@@ -345,20 +350,27 @@ class ExtTableView(QtGui.QWidget):
             self.table_data.model().index(y, x),
             QtGui.QItemSelectionModel.ClearAndSelect)
 
-    def _sizeHintForColumn(self, table, col, limit):
+    def _sizeHintForColumn(self, table, col, limit_ms=None):
         # TODO: use current chunk boundaries, do not start from the beginning
         max_row = table.model().rowCount()
-        if limit is not None:
-            max_row = min(max_row, limit)
+        lm_start = time.clock()
+        lm_row = 64 if limit_ms else max_row
         max_width = 0
         for row in range(max_row):
             v = table.sizeHintForIndex(table.model().index(row, col))
             max_width = max(max_width, v.width())
+            if row > lm_row:
+                lm_now = time.clock()
+                lm_elapsed = (lm_now - lm_start) * 1000
+                if lm_elapsed >= limit_ms:
+                    break
+                olm_row = lm_row
+                lm_row = int((row / lm_elapsed) * limit_ms)
         return max_width
 
-    def _resizeColumnToContents(self, header, data, col, limit):
-        hdr_width = self._sizeHintForColumn(header, col, limit)
-        data_width = self._sizeHintForColumn(data, col, limit)
+    def _resizeColumnToContents(self, header, data, col, limit_ms):
+        hdr_width = self._sizeHintForColumn(header, col, limit_ms)
+        data_width = self._sizeHintForColumn(data, col, limit_ms)
         if data_width > hdr_width:
             width = min(self.max_width, data_width)
         elif hdr_width > data_width * 2:
@@ -367,12 +379,14 @@ class ExtTableView(QtGui.QWidget):
             width = min(self.max_width, hdr_width)
         header.setColumnWidth(col, width)
 
-    def _resizeColumnsToContents(self, header, data, limit):
+    def _resizeColumnsToContents(self, header, data, limit_ms):
         max_col = data.model().columnCount()
-        if limit is not None:
-            max_col = min(max_col, limit)
+        if limit_ms is None:
+            max_col_ms = None
+        else:
+            max_col_ms = limit_ms / max(1, max_col)
         for col in range(max_col):
-            self._resizeColumnToContents(header, data, col, limit)
+            self._resizeColumnToContents(header, data, col, max_col_ms)
 
     def eventFilter(self, obj, event):
         if obj == self.table_data and event.type() == QtCore.QEvent.Resize:
@@ -380,22 +394,28 @@ class ExtTableView(QtGui.QWidget):
         return False
 
     def _resizeVisibleColumnsToContents(self):
-        col = self.table_data.columnAt(self.table_data.rect().topLeft().x())
+        start = col = self.table_data.columnAt(self.table_data.rect().topLeft().x())
         width = self._model.shape()[1]
         end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
         end = width if end == -1 else end + 1
+        if self._max_autosize_ms is None:
+            max_col_ms = None
+        else:
+            max_col_ms = self._max_autosize_ms / max(1, end - start)
         while col < end:
             resized = False
             if col not in self._autosized_cols:
                 self._autosized_cols.add(col)
                 resized = True
                 self._resizeColumnToContents(self.table_header, self.table_data,
-                                             col, self._autosize_limit)
+                                             col, max_col_ms)
             col += 1
             if resized:
                 # as we resize columns, the boundary will change
                 end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
                 end = width if end == -1 else end + 1
+                if max_col_ms is not None:
+                    max_col_ms = self._max_autosize_ms / max(1, end - start)
 
     def _resizeCurrentColumnToContents(self, new_index, old_index):
         if new_index.column() not in self._autosized_cols:
@@ -403,10 +423,9 @@ class ExtTableView(QtGui.QWidget):
             self._resizeVisibleColumnsToContents()
             self.table_data.scrollTo(new_index)
 
-    def resizeColumnsToContents(self, limit=None):
+    def resizeColumnsToContents(self):
         self._autosized_cols = set()
-        self._autosize_limit = limit
-        self._resizeColumnsToContents(self.table_level, self.table_index, limit)
+        self._resizeColumnsToContents(self.table_level, self.table_index, self._max_autosize_ms)
         self._update_layout()
 
 
@@ -416,6 +435,7 @@ class Viewer(QtGui.QMainWindow):
         self.table = ExtTableView()
         self.setCentralWidget(self.table)
         self.closed = False
+        self.table.setAutosizeLimit(MAX_AUTOSIZE_MS)
         if args or kwargs:
             self.view(*args, **kwargs)
 
@@ -423,9 +443,10 @@ class Viewer(QtGui.QMainWindow):
         self.closed = True
         super(Viewer, self).closeEvent(event)
 
-    def view(self, model, hdr_rows=None, idx_cols=None,
-             start_pos=None, metavar=None, title=None):
-        self.table.setModel(model)
+    def view(self, model, hdr_rows=None, idx_cols=None, start_pos=None,
+             metavar=None, title=None, relayout=True):
+        old_model = self.table.model()
+        self.table.setModel(model, relayout=False)
         shape = model.shape()
 
         if title is not None:
@@ -436,9 +457,8 @@ class Viewer(QtGui.QMainWindow):
                 title = "{}: {}".format(metavar, title)
             self.setWindowTitle(title)
 
-        # resizing materializes the contents and might actually take longer
-        # than loading all the data itself, so do it only on a single chunk
-        self.table.resizeColumnsToContents(min(AUTOSIZE_LIMIT, model.chunk_size()))
+        if relayout or old_model is None:
+            self.table.resizeColumnsToContents()
 
         self.table.setFocus()
         if start_pos:
