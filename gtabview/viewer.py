@@ -17,16 +17,25 @@ except ImportError:
     from PySide import QtCore, QtGui
 
 
-def as_str(obj):
+# Support any missing value from Pandas efficiently
+def as_str_py(obj):
     if obj is None: return ''
     if isinstance(obj, float) and math.isnan(obj): return ''
     return str(obj)
+
+def get_as_str():
+    if 'pandas' in sys.modules:
+        import pandas as pd
+        return lambda x: '' if pd.isnull(x) else str(x)
+    else:
+        return as_str_py
 
 
 class Data4ExtModel(QtCore.QAbstractTableModel):
     def __init__(self, model):
         super(Data4ExtModel, self).__init__()
         self.model = model
+        self._as_str = get_as_str()
 
     def rowCount(self, index=None):
         return max(1, self.model.shape()[0])
@@ -40,7 +49,7 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
         if index.row() >= self.model.shape()[0] or \
            index.column() >= self.model.shape()[1]:
             return None
-        return as_str(self.model.data(index.row(), index.column()))
+        return self._as_str(self.model.data(index.row(), index.column()))
 
 
 class Header4ExtModel(QtCore.QAbstractTableModel):
@@ -53,6 +62,7 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             self._shape = (self.model.header_shape()[0], self.model.shape()[1])
         else:
             self._shape = (self.model.shape()[0], self.model.header_shape()[1])
+        self._as_str = get_as_str()
 
     def rowCount(self, index=None):
         return max(1, self._shape[0])
@@ -85,7 +95,7 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
             return self._palette.midlight() if prev != cur else None
         if role != QtCore.Qt.DisplayRole:
             return None
-        return as_str(self.model.header(self.axis, col, row))
+        return self._as_str(self.model.header(self.axis, col, row))
 
 
 class Level4ExtModel(QtCore.QAbstractTableModel):
