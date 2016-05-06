@@ -29,15 +29,15 @@ class require(object):
 
 
 def materialize(model):
-    shape = model.shape()
+    shape = model.shape
     return [[model.data(y, x) for x in range(shape[1])] for y in range(shape[0])]
 
 def materialize_header(model, axis):
-    shape = model.shape()
-    header_shape = model.header_shape()
+    shape = model.shape
+    header_shape = model.header_shape
     return [[model.header(axis, x, level) for x in range(shape[not axis])]
             for level in range(header_shape[axis])]
 
 def materialize_names(model, axis):
-    shape = model.header_shape()
+    shape = model.header_shape
     return [model.name(axis, x) for x in range(shape[axis])]

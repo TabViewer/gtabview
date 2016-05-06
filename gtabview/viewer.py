@@ -38,16 +38,16 @@ class Data4ExtModel(QtCore.QAbstractTableModel):
         self._as_str = get_as_str()
 
     def rowCount(self, index=None):
-        return max(1, self.model.shape()[0])
+        return max(1, self.model.shape[0])
 
     def columnCount(self, index=None):
-        return max(1, self.model.shape()[1])
+        return max(1, self.model.shape[1])
 
     def data(self, index, role):
         if role != QtCore.Qt.DisplayRole:
             return None
-        if index.row() >= self.model.shape()[0] or \
-           index.column() >= self.model.shape()[1]:
+        if index.row() >= self.model.shape[0] or \
+           index.column() >= self.model.shape[1]:
             return None
         return self._as_str(self.model.data(index.row(), index.column()))
 
@@ -59,9 +59,9 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
         self.axis = axis
         self._palette = palette
         if self.axis == 0:
-            self._shape = (self.model.header_shape()[0], self.model.shape()[1])
+            self._shape = (self.model.header_shape[0], self.model.shape[1])
         else:
-            self._shape = (self.model.shape()[0], self.model.header_shape()[1])
+            self._shape = (self.model.shape[0], self.model.header_shape[1])
         self._as_str = get_as_str()
 
     def rowCount(self, index=None):
@@ -112,10 +112,10 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
         self._font = font
 
     def rowCount(self, index=None):
-        return max(1, self.model.header_shape()[0])
+        return max(1, self.model.header_shape[0])
 
     def columnCount(self, index=None):
-        return max(1, self.model.header_shape()[1])
+        return max(1, self.model.header_shape[1])
 
     def headerData(self, section, orientation, role):
         if role == QtCore.Qt.TextAlignmentRole:
@@ -131,14 +131,14 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
             return None
         if role == QtCore.Qt.FontRole:
             return self._font
-        if index.row() == self.model.header_shape()[0] - 1:
+        if index.row() == self.model.header_shape[0] - 1:
             if role == QtCore.Qt.DisplayRole:
                 return str(self.model.name(1, index.column()))
             elif role == QtCore.Qt.ForegroundRole:
                 return self._foreground
             elif role == QtCore.Qt.BackgroundRole:
                 return self._background
-        elif index.column() == self.model.header_shape()[1] - 1:
+        elif index.column() == self.model.header_shape[1] - 1:
             if role == QtCore.Qt.DisplayRole:
                 return str(self.model.name(0, index.row()))
             elif role == QtCore.Qt.ForegroundRole:
@@ -287,7 +287,7 @@ class ExtTableView(QtGui.QWidget):
         self.table_level.verticalHeader().setFixedWidth(h_width)
         self.table_index.verticalHeader().setFixedWidth(h_width)
 
-        last_row = self._model.header_shape()[0] - 1
+        last_row = self._model.header_shape[0] - 1
         if last_row < 0:
             hdr_height = self.table_level.horizontalHeader().height()
         else:
@@ -297,7 +297,7 @@ class ExtTableView(QtGui.QWidget):
         self.table_header.setFixedHeight(hdr_height)
         self.table_level.setFixedHeight(hdr_height)
 
-        last_col = self._model.header_shape()[1] - 1
+        last_col = self._model.header_shape[1] - 1
         if last_col < 0:
             idx_width = self.table_level.verticalHeader().width()
         else:
@@ -405,7 +405,7 @@ class ExtTableView(QtGui.QWidget):
 
     def _resizeVisibleColumnsToContents(self):
         start = col = self.table_data.columnAt(self.table_data.rect().topLeft().x())
-        width = self._model.shape()[1]
+        width = self._model.shape[1]
         end = self.table_data.columnAt(self.table_data.rect().bottomRight().x())
         end = width if end == -1 else end + 1
         if self._max_autosize_ms is None:
@@ -457,7 +457,7 @@ class Viewer(QtGui.QMainWindow):
              metavar=None, title=None, relayout=True):
         old_model = self.table.model()
         self.table.setModel(model, relayout=False)
-        shape = model.shape()
+        shape = model.shape
 
         if title is not None:
             self.setWindowTitle(title)

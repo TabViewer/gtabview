@@ -16,9 +16,11 @@ def getitem2(lst, y, x, default=None):
 
 
 class ExtDataModel(object):
+    @property
     def shape(self):
         raise Exception()
 
+    @property
     def header_shape(self):
         raise Exception()
 
@@ -31,6 +33,7 @@ class ExtDataModel(object):
     def name(self, axis, level):
         return 'L' + str(level)
 
+    @property
     def chunk_size(self):
         return max(*self.shape())
 
@@ -44,12 +47,14 @@ class TransposedExtDataModel(ExtDataModel):
         super(TransposedExtDataModel, self).__init__()
         self._model = model
 
+    @property
     def shape(self):
-        x, y = self._model.shape()
+        x, y = self._model.shape
         return (y, x)
 
+    @property
     def header_shape(self):
-        x, y = self._model.header_shape()
+        x, y = self._model.header_shape
         return (y, x)
 
     def data(self, y, x):
@@ -73,9 +78,11 @@ class ExtListModel(ExtDataModel):
         self._shape = (len(data) - hdr_rows, max(map(len, data)) - idx_cols)
         self._data = data
 
+    @property
     def shape(self):
         return self._shape
 
+    @property
     def header_shape(self):
         return self._header_shape
 
@@ -98,9 +105,11 @@ class ExtMapModel(ExtDataModel):
         h = max([len(x) for x in data.values()]) if self._keys else 0
         self._shape = (h, len(self._keys))
 
+    @property
     def shape(self):
         return self._shape
 
+    @property
     def header_shape(self):
         return (1, 0)
 
@@ -116,9 +125,11 @@ class ExtVectorModel(ExtDataModel):
         super(ExtVectorModel, self).__init__()
         self._data = data
 
+    @property
     def shape(self):
         return (len(self._data), 1)
 
+    @property
     def header_shape(self):
         return (0, 0)
 
@@ -131,9 +142,11 @@ class ExtMatrixModel(ExtDataModel):
         super(ExtMatrixModel, self).__init__()
         self._data = data
 
+    @property
     def shape(self):
         return self._data.shape
 
+    @property
     def header_shape(self):
         return (0, 0)
 
@@ -154,9 +167,11 @@ class ExtBlazeModel(ExtDataModel):
         self._shape = (int(data.nrows), len(data.fields))
         self._lru = deque([], lru_size)
 
+    @property
     def shape(self):
         return self._shape
 
+    @property
     def header_shape(self):
         return (1, 0)
 
@@ -185,6 +200,7 @@ class ExtBlazeModel(ExtDataModel):
     def header(self, axis, x, level=0):
         return self._data.fields[x]
 
+    @property
     def chunk_size(self):
         return self._chunk_size
 
@@ -202,9 +218,11 @@ class ExtFrameModel(ExtDataModel):
         return 1 if not hasattr(ax, 'levels') \
             else len(ax.levels)
 
+    @property
     def shape(self):
         return self._data.shape
 
+    @property
     def header_shape(self):
         return (self._axis_levels(0), self._axis_levels(1))
 
