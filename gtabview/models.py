@@ -250,7 +250,7 @@ def as_model(data, hdr_rows=0, idx_cols=0, transpose=False):
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
              hasattr(data, 'keys') and hasattr(data, 'values'):
             model = ExtMapModel(data)
-        elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
+        elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and len(data) and \
              hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__'):
             model = ExtListModel(data, hdr_rows=hdr_rows, idx_cols=idx_cols)
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__'):

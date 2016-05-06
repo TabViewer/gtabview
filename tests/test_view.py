@@ -9,11 +9,17 @@ gtabview.DETACH=True
 def test_view_vect():
     view([1, 2, 3])
 
+def test_view_vect_empty():
+    view([])
+
 def test_view_dict():
     view({'a': [1, 2, 3], 'b': [1, 2, 3]})
 
 def test_view_list():
     view([[1, 2, 3], [1, 2, 3]])
+
+def test_view_list_empty():
+    view([[]])
 
 def test_view_csv_latin1():
     view(os.path.join(SAMPLE_ROOT, "test_latin-1.csv"))
