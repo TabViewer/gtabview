@@ -95,7 +95,7 @@ class ExtMapModel(ExtDataModel):
         super(ExtMapModel, self).__init__()
         self._data = data
         self._keys = list(data.keys())
-        h = max((len(x) for x in data.values()))
+        h = max([len(x) for x in data.values()]) if self._keys else 0
         self._shape = (h, len(self._keys))
 
     def shape(self):

@@ -15,6 +15,12 @@ def test_view_vect_empty():
 def test_view_dict():
     view({'a': [1, 2, 3], 'b': [1, 2, 3]})
 
+def test_view_dict_empty():
+    view({})
+
+def test_view_dict_empty_vect():
+    view({'a': []})
+
 def test_view_list():
     view([[1, 2, 3], [1, 2, 3]])
 
