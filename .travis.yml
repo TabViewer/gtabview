@@ -1,6 +1,7 @@
 language: python
 os: linux
 sudo: false
+cache: pip
  
 env:
   global:
@@ -8,10 +9,6 @@ env:
     - PIP_DISABLE_PIP_VERSION_CHECK=1
   matrix:
     - TRAVIS_4681_WORKAROUND=1
-
-cache:
-  directories:
-    - $HOME/.cache/pip
 
 matrix:
   exclude:
@@ -104,7 +101,12 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
-  - nosetests -v --with-coverage --cover-package gtabview
+  # ignore crash when running coverage over python3-pyqt4
+  - nosetests -v --with-coverage --cover-package gtabview || {
+      ret=$?;
+      [ "$TRAVIS_PYTHON_VERSION" = '3.2_with_system_site_packages' -a $ret = 134 ] && exit 0;
+      exit $ret;
+    }
 
 after_success:
   - coveralls
