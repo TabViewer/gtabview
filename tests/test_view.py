@@ -41,6 +41,6 @@ def test_view_frame():
                       index=['x', 'y']))
 
 @require('pandas')
-def test_view_frame():
+def test_view_frame_empty():
     import pandas as pd
     view(pd.DataFrame())
