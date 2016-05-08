@@ -1,3 +1,12 @@
+gtabview 0.7
+------------
+
+* More irregular/malformed data structures are now supported.
+* Any missing value supported by NumPy/Pandas (such as NaT) is now displayed as
+  an empty cell for consistency.
+* Column-autosizing performance tweaks.
+
+
 gtabview 0.6.1
 --------------
 
