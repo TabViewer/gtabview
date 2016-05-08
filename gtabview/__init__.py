@@ -13,8 +13,7 @@ import threading
 import warnings
 
 from .compat import *
-from .dataio import read_table
-from .models import as_model
+from .dataio import read_model
 from .viewer import QtGui, QtCore
 from .viewer import Viewer
 
@@ -118,16 +117,6 @@ def _varname_in_stack(var, skip):
     return None
 
 
-def blaze_from_uri(uri, enc):
-    import blaze
-
-    # make file:// uris work uniformly
-    if uri.startswith('file://'):
-        uri = uri[7:]
-
-    return blaze.Data(uri, encoding=enc)
-
-
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          idx_cols=None, sheet_index=0, transpose=False, wait=None,
          recycle=None, detach=None, metavar=None, title=None):
@@ -175,18 +164,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     """
     global WAIT, RECYCLE, DETACH, VIEW
 
-    # if data is a uri/file/path, read it
-    if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
-        if isinstance(data, basestring) and '://' in data:
-            data = blaze_from_uri(data, enc)
-        else:
-            data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
-
-    # only assume an header when loading from a file
-    if hdr_rows is None: hdr_rows = 0
-    if idx_cols is None: idx_cols = 0
-
-    model = as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols, transpose=transpose)
+    model = read_model(data, enc=enc, delimiter=delimiter, hdr_rows=hdr_rows,
+                       idx_cols=idx_cols, sheet_index=sheet_index,
+                       transpose=transpose)
     if model is None:
         warnings.warn("cannot visualize the supplied data type: {}".format(type(data)),
                       category=RuntimeWarning)

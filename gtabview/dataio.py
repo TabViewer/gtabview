@@ -6,6 +6,7 @@ import sys
 import warnings
 
 from .compat import *
+from .models import as_model
 
 
 def _detect_encoding(data=None):
@@ -110,3 +111,29 @@ def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
             del data[hdr_rows]
 
     return data, hdr_rows
+
+
+def blaze_from_uri(uri, enc):
+    import blaze
+
+    # make file:// uris work uniformly
+    if uri.startswith('file://'):
+        uri = uri[7:]
+
+    return blaze.Data(uri, encoding=enc)
+
+
+def read_model(data, enc=None, delimiter=None, hdr_rows=None,
+         idx_cols=None, sheet_index=0, transpose=False):
+    # if data is a uri/file/path, read it
+    if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
+        if isinstance(data, basestring) and '://' in data:
+            data = blaze_from_uri(data, enc)
+        else:
+            data, hdr_rows = read_table(data, enc, delimiter, hdr_rows, sheet_index)
+
+    # only assume an header when loading from a file
+    if hdr_rows is None: hdr_rows = 0
+    if idx_cols is None: idx_cols = 0
+
+    return as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols, transpose=transpose)
