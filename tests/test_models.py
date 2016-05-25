@@ -15,6 +15,12 @@ def test_model_vect():
     assert(model.shape == (3, 1))
     assert(materialize(model) == [[1], [2], [3]])
 
+def test_model_vect_str():
+    model = as_model(['aaa', 'bbb', 'ccc'])
+    assert(model.header_shape == (0, 0))
+    assert(model.shape == (3, 1))
+    assert(materialize(model) == [['aaa'], ['bbb'], ['ccc']])
+
 def test_model_dict():
     model = as_model({'a': [1, 2, 3], 'b': [1, 2, 3]})
     assert(model.header_shape == (1, 0))
