@@ -1,3 +1,9 @@
+gtabview 0.7.1
+--------------
+
+* Sequences of bytes/strings are now correcly shown as a single column.
+
+
 gtabview 0.7
 ------------
 
