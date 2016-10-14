@@ -14,7 +14,7 @@ import warnings
 
 from .compat import *
 from .dataio import read_model
-from .viewer import QtGui, QtCore
+from .viewer import QtGui, QtCore, QtWidgets
 from .viewer import Viewer
 
 
@@ -35,9 +35,9 @@ class ViewController(object):
 
     def view(self, data, view_kwargs, wait, recycle):
         global APP
-        APP = QtGui.QApplication.instance()
+        APP = QtWidgets.QApplication.instance()
         if APP is None:
-            APP = QtGui.QApplication([])
+            APP = QtWidgets.QApplication([])
         if self._view is None or not recycle:
             self._view = Viewer()
         self._view.view(data, **view_kwargs)

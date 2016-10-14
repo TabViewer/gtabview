@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
 from .compat import *
+from .qtpy import QtCore, QtGui, QtWidgets
 from . import models
 import math
 import time
@@ -8,13 +9,6 @@ import time
 MAX_AUTOSIZE_MS = 150   # Milliseconds given (at most) to perform column auto-sizing
 MIN_TRUNC_CHARS = 8     # Minimum size (in characters) given to columns
 MAX_WIDTH_CHARS = 64    # Maximum size (in characters) given to columns
-
-
-# Support PyQt4/PySide with either Python 2/3
-try:
-    from PyQt4 import QtCore, QtGui
-except ImportError:
-    from PySide import QtCore, QtGui
 
 
 # Support any missing value from Pandas efficiently
@@ -150,7 +144,7 @@ class Level4ExtModel(QtCore.QAbstractTableModel):
         return None
 
 
-class ExtTableView(QtGui.QWidget):
+class ExtTableView(QtWidgets.QWidget):
     def __init__(self):
         super(ExtTableView, self).__init__()
         self._selection_rec = False
@@ -166,59 +160,59 @@ class ExtTableView(QtGui.QWidget):
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, tmp)
         self.setPalette(palette)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.hscroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
-        self.vscroll = QtGui.QScrollBar(QtCore.Qt.Vertical)
+        self.hscroll = QtWidgets.QScrollBar(QtCore.Qt.Horizontal)
+        self.vscroll = QtWidgets.QScrollBar(QtCore.Qt.Vertical)
 
-        self.table_level = QtGui.QTableView()
-        self.table_level.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.table_level = QtWidgets.QTableView()
+        self.table_level.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.table_level.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_level.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_level.setFrameStyle(QtGui.QFrame.Plain)
+        self.table_level.setFrameStyle(QtWidgets.QFrame.Plain)
         self.table_level.horizontalHeader().sectionResized.connect(self._index_resized)
         self.table_level.verticalHeader().sectionResized.connect(self._header_resized)
-        self.table_level.setItemDelegate(QtGui.QItemDelegate())
+        self.table_level.setItemDelegate(QtWidgets.QItemDelegate())
         layout.addWidget(self.table_level, 0, 0)
 
-        self.table_header = QtGui.QTableView()
+        self.table_header = QtWidgets.QTableView()
         self.table_header.verticalHeader().hide()
-        self.table_header.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.table_header.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.table_header.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_header.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_header.setHorizontalScrollMode(QtGui.QTableView.ScrollPerPixel)
+        self.table_header.setHorizontalScrollMode(QtWidgets.QTableView.ScrollPerPixel)
         self.table_header.setHorizontalScrollBar(self.hscroll)
-        self.table_header.setFrameStyle(QtGui.QFrame.Plain)
+        self.table_header.setFrameStyle(QtWidgets.QFrame.Plain)
         self.table_header.horizontalHeader().sectionResized.connect(self._column_resized)
-        self.table_header.setItemDelegate(QtGui.QItemDelegate())
+        self.table_header.setItemDelegate(QtWidgets.QItemDelegate())
         layout.addWidget(self.table_header, 0, 1)
 
-        self.table_index = QtGui.QTableView()
+        self.table_index = QtWidgets.QTableView()
         self.table_index.horizontalHeader().hide()
-        self.table_index.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.table_index.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.table_index.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_index.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_index.setVerticalScrollMode(QtGui.QTableView.ScrollPerPixel)
+        self.table_index.setVerticalScrollMode(QtWidgets.QTableView.ScrollPerPixel)
         self.table_index.setVerticalScrollBar(self.vscroll)
-        self.table_index.setFrameStyle(QtGui.QFrame.Plain)
+        self.table_index.setFrameStyle(QtWidgets.QFrame.Plain)
         self.table_index.verticalHeader().sectionResized.connect(self._row_resized)
-        self.table_index.setItemDelegate(QtGui.QItemDelegate())
+        self.table_index.setItemDelegate(QtWidgets.QItemDelegate())
         layout.addWidget(self.table_index, 1, 0)
 
-        self.table_data = QtGui.QTableView()
+        self.table_data = QtWidgets.QTableView()
         self.table_data.verticalHeader().hide()
         self.table_data.horizontalHeader().hide()
-        self.table_data.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
+        self.table_data.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.table_data.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table_data.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_data.setHorizontalScrollMode(QtGui.QTableView.ScrollPerPixel)
-        self.table_data.setVerticalScrollMode(QtGui.QTableView.ScrollPerPixel)
+        self.table_data.setHorizontalScrollMode(QtWidgets.QTableView.ScrollPerPixel)
+        self.table_data.setVerticalScrollMode(QtWidgets.QTableView.ScrollPerPixel)
         self.table_data.setHorizontalScrollBar(self.hscroll)
         self.table_data.setVerticalScrollBar(self.vscroll)
-        self.table_data.setFrameStyle(QtGui.QFrame.Plain)
-        self.table_data.setItemDelegate(QtGui.QItemDelegate())
+        self.table_data.setFrameStyle(QtWidgets.QFrame.Plain)
+        self.table_data.setItemDelegate(QtWidgets.QItemDelegate())
         layout.addWidget(self.table_data, 1, 1)
         self.setFocusProxy(self.table_data)
 
@@ -244,7 +238,7 @@ class ExtTableView(QtGui.QWidget):
         dsm.clear()
         for col in (index.column() for index in ssm.selectedIndexes()):
             dsm.select(dest.model().index(0, col),
-                       QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Columns)
+                       QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Columns)
         deselect.selectionModel().clear()
         self._selection_rec = False
 
@@ -257,7 +251,7 @@ class ExtTableView(QtGui.QWidget):
         dsm.clear()
         for row in (index.row() for index in ssm.selectedIndexes()):
             dsm.select(dest.model().index(row, 0),
-                       QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
+                       QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows)
         deselect.selectionModel().clear()
         self._selection_rec = False
 
@@ -358,7 +352,7 @@ class ExtTableView(QtGui.QWidget):
     def setCurrentIndex(self, y, x):
         self.table_data.selectionModel().setCurrentIndex(
             self.table_data.model().index(y, x),
-            QtGui.QItemSelectionModel.ClearAndSelect)
+            QtCore.QItemSelectionModel.ClearAndSelect)
 
     def _sizeHintForColumn(self, table, col, limit_ms=None):
         # TODO: use current chunk boundaries, do not start from the beginning
@@ -439,7 +433,7 @@ class ExtTableView(QtGui.QWidget):
         self._update_layout()
 
 
-class Viewer(QtGui.QMainWindow):
+class Viewer(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Viewer, self).__init__()
         self.table = ExtTableView()

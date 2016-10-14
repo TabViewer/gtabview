@@ -126,7 +126,7 @@ Requirements and installation
 `gtabview` requires:
 
 - Python 2 or Python 3
-- PyQt4 or PySide
+- PyQt5, PyQt4 or PySide
 - setuptools and setuptools-git (install-only).
 
 Under Debian/Ubuntu, install the required dependencies with::

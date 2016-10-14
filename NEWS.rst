@@ -1,3 +1,9 @@
+gtabview 0.???
+--------------
+
+* Added support for PyQt5
+
+
 gtabview 0.7.1
 --------------
 
