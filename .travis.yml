@@ -40,7 +40,7 @@ matrix:
           packages:
             - python-qt4
       before_install:
-        - pip install -q pandas
+        - pip install -q 'pandas<0.18'
     - python: 2.7_with_system_site_packages
       addons:
         apt:
@@ -48,14 +48,14 @@ matrix:
             - python-qt4
             - python-matplotlib
       before_install:
-        - pip install -q pandas
+        - pip install -q 'pandas<0.18'
     - python: 2.7_with_system_site_packages
       addons:
         apt:
           packages:
             - python-qt4
       before_install:
-        - pip install -q blaze
+        - pip install -q 'pandas<0.18' blaze
     - python: 3.2_with_system_site_packages
       addons:
         apt:
