@@ -8,7 +8,7 @@ long_description = (readme + "\n\nLatest release notes\n====================\n"
                     + '\n'.join(news.split('\n\n\n', 1)[0].splitlines()[2:]))
 
 # the actual setup
-setup(name='gtabview', version='0.7.1',
+setup(name='gtabview', version='0.8',
       description='A simple graphical tabular data viewer',
 
       author="Yuri D'Elia",
@@ -19,7 +19,7 @@ setup(name='gtabview', version='0.7.1',
       keywords='data spreadsheet view viewer csv comma separated values',
       classifiers=['Development Status :: 5 - Production/Stable',
                    'Environment :: Win32 (MS Windows)',
-                   'Environment :: Environment :: MacOS X',
+                   'Environment :: MacOS X',
                    'Environment :: X11 Applications :: Qt',
                    'Intended Audience :: Science/Research',
                    'License :: OSI Approved :: MIT License',

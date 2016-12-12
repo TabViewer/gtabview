@@ -1,5 +1,5 @@
-gtabview 0.???
---------------
+gtabview 0.8
+------------
 
 * Added support for PyQt5
 
