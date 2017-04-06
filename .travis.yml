@@ -2,18 +2,17 @@ language: python
 os: linux
 sudo: false
 cache: pip
-
-# set a dummy variable to exclude the default build
-dummy_build: true
  
 env:
   global:
     - DISPLAY=:99.0
     - PIP_DISABLE_PIP_VERSION_CHECK=1
+  matrix:
+    - TRAVIS_4681_WORKAROUND=1
 
 matrix:
   exclude:
-    - dummy_build: true
+    - env: TRAVIS_4681_WORKAROUND=1
   include:
     - python: 2.7_with_system_site_packages
       addons:
