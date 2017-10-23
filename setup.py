@@ -35,6 +35,7 @@ setup(name='gtabview', version='0.8',
 
       scripts=['bin/gtabview'],
       packages=find_packages(),
-      setup_requires=['setuptools', 'setuptools-git'],
+      setup_requires=['setuptools'],
       extras_require={'test': ['nose']},
-      test_suite='nose.collector')
+      test_suite='nose.collector',
+      data_files=[('share/doc/gtabview', ['README.rst', 'NEWS.rst'])])

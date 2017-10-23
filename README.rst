@@ -130,12 +130,12 @@ Requirements and installation
 
 - Python 3 or Python 2
 - PyQt5, PyQt4 or PySide
-- setuptools and setuptools-git (install-only).
+- setuptools (install-only)
 
 Under Debian/Ubuntu, install the required dependencies with::
 
   sudo apt-get install python3 python3-pyqt5
-  sudo apt-get install python3-setuptools python3-setuptools-git
+  sudo apt-get install python3-setuptools
 
 Then download and install simply via pip::
 
