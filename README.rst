@@ -1,9 +1,10 @@
 gtabview: a simple graphical tabular data viewer
 ================================================
 
-Graphical counterpart to `tabview <https://github.com/firecat53/tabview/>`_, a
-simple tabular data viewer that can be used both stand-alone and as a Python
-module for various files and Python/Pandas/NumPy data structures.
+Graphical counterpart to `tabview
+<https://github.com/firecat53/tabview/>`_, a simple tabular data viewer
+that can be used both stand-alone and as a Python module for various
+files and Python/Pandas/NumPy data structures.
 
 
 Stand-alone usage
@@ -18,16 +19,16 @@ If xlrd_ is installed, Excel files can be read directly::
 
   gtabview file.xls[x]
 
-When Blaze_ is also installed, any Blaze source can be used by specifying a
-`supported URI`_ on the command line::
+When Blaze_ is also installed, any Blaze source can be used by
+specifying a `supported URI`_ on the command line::
 
   gtabview file://dataset.hdf5
   gtabview file://dataset.json
   gtabview sqlite://file.db::table
   gtabview postgresql://host.domain/db_name::table
 
-The database URL syntax is inherited from SQLAlchemy, so refer to SQLAlchemy's
-`database URLs`_ for a detailed reference.
+The database URL syntax is inherited from SQLAlchemy, so refer to
+SQLAlchemy's `database URLs`_ for a detailed reference.
 
 .. _xlrd: https://pypi.python.org/pypi/xlrd
 .. _Blaze: http://blaze.pydata.org/
@@ -38,8 +39,8 @@ The database URL syntax is inherited from SQLAlchemy, so refer to SQLAlchemy's
 Usage as a module
 -----------------
 
-``gtabview.view()`` can be used to display simple Python types directly in
-tabulated form:
+``gtabview.view()`` can be used to display simple Python types directly
+in tabulated form:
 
 .. code:: python
 
@@ -93,18 +94,19 @@ implicitly through an URI:
 
     view('postgresql://user:pass@host.domain:port/db_name::table')
 
-`gtabview` is designed to integrate correctly with matplotlib. If you're using
-`gtabview` with matplotlib either directly or indirectly (for example, using
-the Pandas visualization API or Seaborn), be sure to include matplotlib *first*
-to correctly initialize `gtabview`.
+`gtabview` is designed to integrate correctly with matplotlib. If you're
+using `gtabview` with matplotlib either directly or indirectly (for
+example, using the Pandas visualization API or Seaborn), be sure to
+include matplotlib *first* to correctly initialize `gtabview`.
 
-`gtabview` will also use matplotlib's ``interactive`` setting to determine the
-default behavior of the data window: when interactive, calls to ``view()`` will
-not block, and will keep recycling the same window.
+`gtabview` will also use matplotlib's ``interactive`` setting to
+determine the default behavior of the data window: when interactive,
+calls to ``view()`` will not block, and will keep recycling the same
+window.
 
-To use `gtabview` in a Python Notebook with inline graphics, you'll probably
-want to force the detached behavior. In the first cell of your notebook,
-initialize both `gtabview` and `matplotlib` as follows:
+To use `gtabview` in a Python Notebook with inline graphics, you'll
+probably want to force the detached behavior. In the first cell of your
+notebook, initialize both `gtabview` and `matplotlib` as follows:
 
 .. code:: python
 
@@ -113,8 +115,9 @@ initialize both `gtabview` and `matplotlib` as follows:
   from gtabview import view
   %matplotlib inline
 
-When using ``view``, a *separate* data window will show. The window can be kept
-around or closed, but will only be refreshed when evaluating the cell again.
+When using ``view``, a *separate* data window will show. The window can
+be kept around or closed, but will only be refreshed when evaluating the
+cell again.
 
 
 Requirements and installation
@@ -138,8 +141,8 @@ Then download and install simply via pip::
 
   pip install gtabview
 
-Install ``xlrd`` if reading Excel files directly is desired, and optionally
-Blaze for interacting with other/scientific data formats::
+Install ``xlrd`` if reading Excel files directly is desired, and
+optionally Blaze for interacting with other/scientific data formats::
 
   pip install xlrd
   pip install blaze
@@ -149,5 +152,5 @@ License
 -------
 
 | gtabview is distributed under the MIT license (see ``LICENSE.txt``)
-| Copyright(c) 2014-2016: wave++ "Yuri D'Elia" <wavexx@thregr.org>
+| Copyright(c) 2014-2017: wave++ "Yuri D'Elia" <wavexx@thregr.org>
 | Copyright(c) 2014-2015: Scott Hansen <firecat4153@gmail.com>
