@@ -61,13 +61,13 @@ class DetachedViewController(threading.Thread):
 
     def run(self):
         global APP
-        APP = QtGui.QApplication.instance()
+        APP = QtWidgets.QApplication.instance()
         if APP is not None:
             warnings.warn("cannot detach: QApplication already initialized",
                           category=RuntimeWarning)
             self._lock.release()
             return
-        APP = QtGui.QApplication([])
+        APP = QtWidgets.QApplication([])
         self._view = Viewer()
         self._lock.release()
         while True:
