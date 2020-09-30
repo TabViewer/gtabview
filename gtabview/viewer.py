@@ -11,6 +11,13 @@ MIN_TRUNC_CHARS = 8     # Minimum size (in characters) given to columns
 MAX_WIDTH_CHARS = 64    # Maximum size (in characters) given to columns
 
 
+# Clock source
+try:
+    clock = time.monotonic
+except AttributeError:
+    clock = time.clock
+
+
 # Support any missing value from Pandas efficiently
 def as_str_py(obj):
     if obj is None: return ''
@@ -357,14 +364,14 @@ class ExtTableView(QtWidgets.QWidget):
     def _sizeHintForColumn(self, table, col, limit_ms=None):
         # TODO: use current chunk boundaries, do not start from the beginning
         max_row = table.model().rowCount()
-        lm_start = time.clock()
+        lm_start = clock()
         lm_row = 64 if limit_ms else max_row
         max_width = 0
         for row in range(max_row):
             v = table.sizeHintForIndex(table.model().index(row, col))
             max_width = max(max_width, v.width())
             if row > lm_row:
-                lm_now = time.clock()
+                lm_now = clock()
                 lm_elapsed = (lm_now - lm_start) * 1000
                 if lm_elapsed >= limit_ms:
                     break
