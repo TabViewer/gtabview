@@ -131,7 +131,10 @@ def test_model_array():
 @require('numpy')
 def test_model_matrix():
     import numpy as np
-    model = as_model(np.matrix([[1, 2, 3], [1, 2, 3]]))
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', PendingDeprecationWarning)
+        model = as_model(np.matrix([[1, 2, 3], [1, 2, 3]]))
     assert(model.header_shape == (0, 0))
     assert(model.shape == (2, 3))
     assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
