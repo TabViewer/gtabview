@@ -21,6 +21,18 @@ def test_model_vect_str():
     assert(model.shape == (3, 1))
     assert(materialize(model) == [['aaa'], ['bbb'], ['ccc']])
 
+def test_model_set():
+    model = as_model({'a', 'b', 'c'})
+    assert(model.header_shape == (0, 0))
+    assert(model.shape == (3, 1))
+    assert(sorted(materialize(model)) == [['a'], ['b'], ['c']])
+
+def test_model_iterable():
+    model = as_model(sorted(['c', 'b', 'a']))
+    assert(model.header_shape == (0, 0))
+    assert(model.shape == (3, 1))
+    assert(materialize(model) == [['a'], ['b'], ['c']])
+
 def test_model_dict():
     model = as_model({'a': [1, 2, 3], 'b': [1, 2, 3]})
     assert(model.header_shape == (1, 0))

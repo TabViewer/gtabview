@@ -244,9 +244,14 @@ class ExtFrameModel(ExtDataModel):
 
 
 def _data_lower(data):
-    # TODO: add specific data models to reduce overhead
     if data.__class__.__name__ in ['Series', 'Panel']:
+        # handle panels and series as frames
         return data.to_frame()
+    if not hasattr(data, '__array__') and not hasattr(data, '__getitem__') and \
+       hasattr(data, '__iter__') and hasattr(data, '__len__'):
+        # flatten iterables but non-indexables to lists (ie: sets)
+        data = list(data)
+
     return data
 
 
