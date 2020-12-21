@@ -73,6 +73,7 @@ class DetachedViewController(threading.Thread):
         while True:
             with self._lock:
                 if self._data == False:
+                    del APP
                     return
                 elif self._data is not None:
                     if not self._data['recycle']:
