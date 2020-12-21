@@ -98,10 +98,10 @@ class ExtListModel(ExtDataModel):
 
 
 class ExtMapModel(ExtDataModel):
-    def __init__(self, data):
+    def __init__(self, data, sort=False):
         super(ExtMapModel, self).__init__()
         self._data = data
-        self._keys = list(sorted(data.keys()))
+        self._keys = list(sorted(data.keys()) if sort else data.keys())
         h = max([len(x) for x in data.values()]) if self._keys else 0
         self._shape = (h, len(self._keys))
 
@@ -243,24 +243,26 @@ class ExtFrameModel(ExtDataModel):
         return super(ExtFrameModel, self).name(axis, level)
 
 
-def _data_lower(data):
+def _data_lower(data, sort):
     if data.__class__.__name__ in ['Series', 'Panel']:
         # handle panels and series as frames
         return data.to_frame()
     if not hasattr(data, '__array__') and not hasattr(data, '__getitem__') and \
        hasattr(data, '__iter__') and hasattr(data, '__len__'):
         # flatten iterables but non-indexables to lists (ie: sets)
-        data = list(data)
+        if sort and isinstance(data, (set, frozenset)):
+            data = sorted(data)
+        return list(data)
 
     return data
 
 
-def as_model(data, hdr_rows=0, idx_cols=0, transpose=False):
+def as_model(data, hdr_rows=0, idx_cols=0, transpose=False, sort=False):
     model = None
     if isinstance(data, ExtDataModel):
         model = data
     else:
-        data = _data_lower(data)
+        data = _data_lower(data, sort)
 
         if hasattr(data, '__array__') and hasattr(data, 'iat') and \
            hasattr(data, 'index') and hasattr(data, 'columns'):
@@ -272,7 +274,7 @@ def as_model(data, hdr_rows=0, idx_cols=0, transpose=False):
             model = ExtMatrixModel(data)
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and \
              hasattr(data, 'keys') and hasattr(data, 'values'):
-            model = ExtMapModel(data)
+            model = ExtMapModel(data, sort)
         elif hasattr(data, '__getitem__') and hasattr(data, '__len__') and len(data) and \
              hasattr(data[0], '__getitem__') and hasattr(data[0], '__len__') and \
              not isinstance(data[0], (bytes, str)):

@@ -119,7 +119,7 @@ def _varname_in_stack(var, skip):
 
 def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          idx_cols=None, sheet_index=0, transpose=False, wait=None,
-         recycle=None, detach=None, metavar=None, title=None):
+         recycle=None, detach=None, metavar=None, title=None, sort=False):
     """View the supplied data in an interactive, graphical table widget.
 
     data: When a valid path or IO object, read it as a tabular text file. When
@@ -145,6 +145,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
 
     transpose: Transpose the resulting view.
 
+    sort: Request sorting of sets and keys of dicts where ordering is
+          *normally* not meaningful.
+
     metavar: name of the variable being shown for display purposes (inferred
              automatically when possible).
 
@@ -161,12 +164,13 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     detach: Create a fully detached GUI thread for interactive use (note: this
             is *not* necessary if matplotlib is loaded). The default is False,
             and can also be set through ``gtabview.DETACH``.
+
     """
     global WAIT, RECYCLE, DETACH, VIEW
 
     model = read_model(data, enc=enc, delimiter=delimiter, hdr_rows=hdr_rows,
                        idx_cols=idx_cols, sheet_index=sheet_index,
-                       transpose=transpose)
+                       transpose=transpose, sort=sort)
     if model is None:
         warnings.warn("cannot visualize the supplied data type: {}".format(type(data)),
                       category=RuntimeWarning)

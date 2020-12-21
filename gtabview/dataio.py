@@ -124,8 +124,8 @@ def blaze_from_uri(uri, enc):
     return blaze.Data(uri, encoding=enc)
 
 
-def read_model(data, enc=None, delimiter=None, hdr_rows=None,
-         idx_cols=None, sheet_index=0, transpose=False):
+def read_model(data, enc=None, delimiter=None, hdr_rows=None, idx_cols=None,
+               sheet_index=0, transpose=False, sort=False):
     # if data is a uri/file/path, read it
     if isinstance(data, basestring) or isinstance(data, (io.IOBase, file)):
         if isinstance(data, basestring) and '://' in data:
@@ -137,4 +137,5 @@ def read_model(data, enc=None, delimiter=None, hdr_rows=None,
     if hdr_rows is None: hdr_rows = 0
     if idx_cols is None: idx_cols = 0
 
-    return as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols, transpose=transpose)
+    return as_model(data, hdr_rows=hdr_rows, idx_cols=idx_cols,
+                    transpose=transpose, sort=sort)

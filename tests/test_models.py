@@ -38,6 +38,24 @@ def test_model_dict():
     assert(model.header_shape == (1, 0))
     assert(model.shape == (3, 2))
     assert(materialize(model) == [[1, 1], [2, 2], [3, 3]])
+    assert(sorted(materialize_header(model, 0)) == [['a', 'b']])
+    assert(materialize_header(model, 1) == [])
+
+def test_model_ordered_dict():
+    from collections import OrderedDict
+    model = as_model(OrderedDict([('b', [1, 2, 3]), ('a', [1, 2, 3])]))
+    assert(model.header_shape == (1, 0))
+    assert(model.shape == (3, 2))
+    assert(materialize(model) == [[1, 1], [2, 2], [3, 3]])
+    assert(materialize_header(model, 0) == [['b', 'a']])
+    assert(materialize_header(model, 1) == [])
+
+def test_model_ordered_dict_sort():
+    from collections import OrderedDict
+    model = as_model(OrderedDict([('b', [1, 2, 3]), ('a', [1, 2, 3])]), sort=True)
+    assert(model.header_shape == (1, 0))
+    assert(model.shape == (3, 2))
+    assert(materialize(model) == [[1, 1], [2, 2], [3, 3]])
     assert(materialize_header(model, 0) == [['a', 'b']])
     assert(materialize_header(model, 1) == [])
 
