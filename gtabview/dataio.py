@@ -59,23 +59,24 @@ def _parse_lines(data, enc=None, delimiter=None):
 
 
 def read_csv(fd_or_path, enc, delimiter, hdr_rows):
-    if isinstance(fd_or_path, basestring):
-        fd_or_path = open(fd_or_path, 'rb')
-    return _parse_lines(fd_or_path.readlines(), enc, delimiter)
+    if isinstance(fd_or_path, (io.IOBase, file)):
+        return _parse_lines(fd_or_path.readlines(), enc, delimiter)
+    with open(fd_or_path, 'rb') as fd:
+        return _parse_lines(fd.readlines(), enc, delimiter)
 
 
 def read_xlrd(path, sheet_index):
     import xlrd
-    wb = xlrd.open_workbook(path, on_demand=True, ragged_rows=True)
-    sheet = wb.sheet_by_index(sheet_index)
-    return [sheet.row_values(row) for row in range(sheet.nrows)]
+    with xlrd.open_workbook(path, on_demand=True, ragged_rows=True) as wb:
+        sheet = wb.sheet_by_index(sheet_index)
+        return [sheet.row_values(row) for row in range(sheet.nrows)]
 
 
 def read_table(fd_or_path, enc, delimiter, hdr_rows, sheet_index=0):
     data = None
 
     # read into a list of lists
-    if isinstance(fd_or_path, basestring):
+    if not isinstance(fd_or_path, (io.IOBase, file)):
         _, ext = os.path.splitext(fd_or_path)
         if ext.lower() in ['.xls', '.xlsx']:
             try:
