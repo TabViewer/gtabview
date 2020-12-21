@@ -33,9 +33,13 @@ setup(name='gtabview', version='0.8',
                    'Topic :: Software Development :: Widget Sets',
                    'Topic :: Utilities'],
 
-      scripts=['bin/gtabview'],
       packages=find_packages(),
       setup_requires=['setuptools'],
       extras_require={'test': ['nose']},
       test_suite='nose.collector',
+      entry_points={
+          'console_scripts': [
+              'gtabview=gtabview_cli.gtabview:main',
+          ],
+      },
       data_files=[('share/doc/gtabview', ['README.rst', 'NEWS.rst'])])
