@@ -123,10 +123,9 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
          recycle=None, detach=None, metavar=None, title=None, sort=False):
     """View the supplied data in an interactive, graphical table widget.
 
-    data: When a valid path or IO object, read it as a tabular text file. When
-          a valid URI, a Blaze object is constructed and visualized. Any other
-          supported datatype is visualized directly and incrementally *without
-          copying*.
+    data: When a valid path or IO object, read it as a tabular text
+          file. Any other supported datatype is visualized directly and
+          incrementally *without copying*.
 
     enc: File encoding (such as "utf-8", normally autodetected).
 

@@ -19,21 +19,7 @@ If xlrd_ is installed, Excel files can be read directly::
 
   gtabview file.xls[x]
 
-When Blaze_ is also installed, any Blaze source can be used by
-specifying a `supported URI`_ on the command line::
-
-  gtabview file://dataset.hdf5
-  gtabview file://dataset.json
-  gtabview sqlite://file.db::table
-  gtabview postgresql://host.domain/db_name::table
-
-The database URL syntax is inherited from SQLAlchemy, so refer to
-SQLAlchemy's `database URLs`_ for a detailed reference.
-
 .. _xlrd: https://pypi.python.org/pypi/xlrd
-.. _Blaze: http://blaze.pydata.org/
-.. _supported URI: http://blaze.pydata.org/en/latest/uri.html
-.. _database URLs: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 
 
 Usage as a module
@@ -80,19 +66,6 @@ DataFrames, such as MultiIndexes and level names:
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
 		      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
-
-Blaze can also be used directly as a data source, either explicitly or
-implicitly through an URI:
-
-.. code:: python
-
-    from gtabview import view
-    import blaze as bz
-
-    iris = bz.Data('sqlite:///blaze/examples/data/iris.db::iris')
-    view(iris)
-
-    view('postgresql://user:pass@host.domain:port/db_name::table')
 
 `gtabview` is designed to integrate correctly with matplotlib. If you're
 using `gtabview` with matplotlib either directly or indirectly (for
@@ -141,11 +114,9 @@ Then download and install simply via pip::
 
   pip install gtabview
 
-Install ``xlrd`` if reading Excel files directly is desired, and
-optionally Blaze for interacting with other/scientific data formats::
+Install ``xlrd`` if direct reading of Excel files is desired::
 
   pip install xlrd
-  pip install blaze
 
 
 License

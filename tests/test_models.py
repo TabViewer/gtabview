@@ -168,12 +168,3 @@ def test_model_matrix():
     assert(model.header_shape == (0, 0))
     assert(model.shape == (2, 3))
     assert(materialize(model) == [[1, 2, 3], [1, 2, 3]])
-
-@require('blaze')
-def test_model_blaze():
-    import blaze as bz
-    model = as_model(bz.Data(os.path.join(TDATA_ROOT, 'simple.csv')))
-    assert(model.header_shape == (1, 0))
-    assert(model.shape == (2, 3))
-    assert(materialize(model) == [[1, 2, 3], [4, 5, 6]])
-    assert(materialize_header(model, 0) == [['a', 'b', 'c']])
