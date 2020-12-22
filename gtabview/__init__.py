@@ -12,6 +12,7 @@ import sys
 import threading
 import warnings
 
+from gtabview_cli import __version__
 from .compat import *
 from .dataio import read_model
 from .viewer import QtGui, QtCore, QtWidgets

@@ -10,10 +10,13 @@ import os
 import sys
 import argparse
 
+from . import __version__
+
 
 def arg_parse():
     parser = argparse.ArgumentParser(description="View a tab-delimited file "
                                      "in a spreadsheet-like display. ")
+    parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('filename', help="File to read. Use '-' to read from "
                         "the standard input instead.")
     parser.add_argument('--encoding', '-e', help="Encoding, if required.  "
