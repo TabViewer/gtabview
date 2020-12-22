@@ -1,3 +1,20 @@
+gtabview 0.9
+------------
+
+* All iterables with a known length (such as sets) can now be visualized
+  as regular columns without an explicit conversion.
+* Sets and dictionary keys are now displayed in native order by default.
+  A new ``sort`` keyword has been added to enforce ordering again.
+* Fixes column autosizing error with Python 3.7+
+* A crash that could occur during shutdown with a running detached view
+  and Qt5 has been fixed.
+* The ``gtabview`` utility is now installed via ``console_scripts``,
+  fixing usage on Windows platforms.
+* Removed support for Blaze, due to broken/unmaintained upstream.
+* Version information is now available as a command line via
+  ``--version`` and in the module itself ``gtabview.__version__``.
+
+
 gtabview 0.8
 ------------
 

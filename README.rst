@@ -90,7 +90,8 @@ notebook, initialize both `gtabview` and `matplotlib` as follows:
 
 When using ``view``, a *separate* data window will show. The window can
 be kept around or closed, but will only be refreshed when evaluating the
-cell again.
+cell again. Jupyter is currently known not to work properly
+(https://github.com/TabViewer/gtabview/issues/32).
 
 
 Requirements and installation
