@@ -156,9 +156,3 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                    'start_pos': start_pos, 'metavar': metavar, 'title': title}
     VIEW.view(model, view_kwargs, wait=wait, recycle=recycle)
     return VIEW
-
-
-# force matplotlib GUI to initialize
-if 'matplotlib' in sys.modules:
-    import matplotlib.pyplot as plt
-    plt.close(plt.figure())
