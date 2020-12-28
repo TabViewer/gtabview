@@ -29,6 +29,18 @@ class ViewController(object):
         super(ViewController, self).__init__()
         self._view = None
 
+    def visible(self):
+        if self._view is None:
+            return False
+        return self._view.isVisible()
+
+    def wait(self):
+        if self._view is None:
+            return
+        while self._view.isVisible():
+            APP.processEvents(QtCore.QEventLoop.AllEvents |
+                              QtCore.QEventLoop.WaitForMoreEvents)
+
     def view(self, data, view_kwargs, wait, recycle):
         global APP
         APP = QtWidgets.QApplication.instance()
@@ -38,9 +50,7 @@ class ViewController(object):
             self._view = Viewer()
         self._view.view(data, **view_kwargs)
         if wait:
-            while self._view.isVisible():
-                APP.processEvents(QtCore.QEventLoop.AllEvents |
-                                  QtCore.QEventLoop.WaitForMoreEvents)
+            self.wait()
 
 
 def _varname_in_stack(var, skip):
