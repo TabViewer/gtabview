@@ -1,3 +1,9 @@
+gtabview 0.10
+-------------
+
+* Fixes interactive support within IPython and Jupyter notebooks.
+
+
 gtabview 0.9
 ------------
 
