@@ -1,0 +1,42 @@
+name: Test optional dependencies in isolation
+
+on: [push]
+
+jobs:
+  test:
+    name: test set ${{ matrix.dependency-set }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.9"]
+        dependency-set:
+          - ""
+          - numpy
+          - pandas
+          - xlrd
+          - pandas numpy xlrd
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          activate-environment: test
+      - name: Install dependencies
+        run: |
+          conda install setuptools pyqt nose ${{ matrix.dependency-set }}
+      - name: Silence fontconfig
+        run: |
+          fc-cache
+      - name: Run tests
+        env:
+          XDG_RUNTIME_DIR: ${{ runner.temp }}
+        run: |
+          xvfb-run --auto-servernum nosetests -v

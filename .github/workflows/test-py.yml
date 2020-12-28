@@ -1,22 +1,16 @@
-name: test
+name: Test on different Python versions
 
 on: [push]
 
 jobs:
   test:
-    name: test python ${{ matrix.python-version }} ${{ matrix.dependency-set }}
+    name: test python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
         python-version: ["3.9", "3.8", "3.7", "2.7"]
-        dependency-set:
-          - ""
-          - numpy
-          - pandas
-          - xlrd
-          - pandas numpy xlrd
     defaults:
       run:
         shell: bash -l {0}
@@ -31,7 +25,7 @@ jobs:
           activate-environment: test
       - name: Install dependencies
         run: |
-          conda install setuptools pyqt nose ${{ matrix.dependency-set }}
+          conda install setuptools pyqt nose pandas numpy xlrd
       - name: Silence fontconfig
         run: |
           fc-cache
