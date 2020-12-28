@@ -2,8 +2,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 from . import *
-gtabview.WAIT=False
-gtabview.DETACH=True
+gtabview.WAIT = False
 
 
 def test_view_vect():
