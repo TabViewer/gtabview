@@ -68,28 +68,31 @@ DataFrames, such as MultiIndexes and level names:
     view(df)
 
 `gtabview` is designed to integrate correctly with `IPython`, `Jupyter`
-and `matplotlib`. If you're using `gtabview` with `matplotlib` either
-directly or indirectly (for example, using the Pandas visualization API
-or Seaborn), be sure to include `matplotlib` *first* to correctly
-initialize `gtabview`.
+and `matplotlib`.
 
-`gtabview` will then automatically use `matplotlib`'s ``interactive``
-setting to determine the default behavior of the data window: when
-interactive, calls to ``view()`` will not block, and will keep recycling
-the same window.
+When `matplotlib` is used, `gtabview` will automatically default to use
+mpl's ``interactive`` setting to determine the default behavior of the
+data window: when interactive, calls to ``view()`` will not block, and
+will keep recycling the same window.
 
-In `IPython` and `Jupyter` calls also default to non-blocking, while in
-plain Python calls will block.
+In `IPython` and `Jupyter` notebooks ``view()`` calls also default to
+non-blocking behavior, while in plain Python calls will halt until the
+window is closed.
 
-You can change this behavior with the ``view(..., wait=False)`` for each
-call, or by changing the module default::
+You can change this behavior with the ``view(..., wait=False)`` argument
+for each call, or by changing the module default::
 
   import gtabview
   gtabview.WAIT = False
 
-In a `Jupyter` notebook a *separate* data window will show. The window
-can be kept around or closed, but will only be refreshed when evaluating
-the cell again.
+In a `Jupyter` notebook a *separate* data window will always show. The
+window can be kept around or closed, but will only be refreshed when
+evaluating the cell again.
+
+Separate data windows can also be opened by using the ``view(...,
+recycle=False)`` argument, or again by setting the global
+``gtabview.RECYCLE`` default. See the built-in documentation of
+``gtabview.view`` for more details.
 
 
 Requirements and installation
