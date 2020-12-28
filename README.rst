@@ -78,10 +78,11 @@ setting to determine the default behavior of the data window: when
 interactive, calls to ``view()`` will not block, and will keep recycling
 the same window.
 
-In plain `IPython`/Python ``view()`` defaults to blocking.
+In `IPython` and `Jupyter` calls also default to non-blocking, while in
+plain Python calls will block.
 
-You can change this behavior in `IPython`/Python with the ``view(...,
-wait=False)`` for each call, or by changing the module default::
+You can change this behavior with the ``view(..., wait=False)`` for each
+call, or by changing the module default::
 
   import gtabview
   gtabview.WAIT = False

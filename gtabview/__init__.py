@@ -122,21 +122,23 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
         return None
 
     # install gui hooks in ipython/jupyter
+    gui_support = False
     if 'IPython' in sys.modules:
         from IPython import get_ipython
         ip = get_ipython()
         if ip is not None:
             ip.enable_gui('qt')
+            gui_support = True
 
     # setup defaults
     if wait is None: wait = WAIT
     if recycle is None: recycle = RECYCLE
     if wait is None:
-        if 'matplotlib' not in sys.modules:
-            wait = True
-        else:
+        if 'matplotlib' in sys.modules:
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
+        else:
+            wait = not gui_support
 
     # try to fetch the variable name in the upper stack
     if metavar is None:
