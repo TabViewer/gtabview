@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, generators
+
 from .compat import *
 from .qtpy import QtCore, QtGui, QtWidgets
-from . import models
+
 import math
 import time
+import sys
 
 MAX_AUTOSIZE_MS = 150   # Milliseconds given (at most) to perform column auto-sizing
 MIN_TRUNC_CHARS = 8     # Minimum size (in characters) given to columns
@@ -89,7 +91,7 @@ class Header4ExtModel(QtCore.QAbstractTableModel):
            index.column() >= self._shape[1]:
             return None
         row, col = (index.row(), index.column()) if self.axis == 0 \
-                   else (index.column(), index.row())
+            else (index.column(), index.row())
         if role == QtCore.Qt.BackgroundRole:
             prev = self.model.header(self.axis, col - 1, row) if col else None
             cur = self.model.header(self.axis, col, row)
@@ -375,7 +377,6 @@ class ExtTableView(QtWidgets.QWidget):
                 lm_elapsed = (lm_now - lm_start) * 1000
                 if lm_elapsed >= limit_ms:
                     break
-                olm_row = lm_row
                 lm_row = int((row / lm_elapsed) * limit_ms)
         return max_width
 

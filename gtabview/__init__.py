@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import
 
-import atexit
 import inspect
-import io
 import sys
-import threading
 import warnings
 
 from gtabview_cli import __version__
@@ -109,7 +106,6 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
              default is True, and can also be set through ``gtabview.RECYCLE``.
 
     detach: Ignored for backward compatibility.
-
     """
     global WAIT, RECYCLE, VIEW
 

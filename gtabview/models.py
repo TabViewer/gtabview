@@ -2,10 +2,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, generators, division
 
 from .compat import *
-from collections import deque
-
-DEFAULT_CHUNK_SIZE = 16384
-DEFAULT_LRU_SIZE   = 9
 
 
 def getitem(lst, idx, default=None):
