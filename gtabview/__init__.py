@@ -18,7 +18,6 @@ from .viewer import Viewer
 # view defaults
 WAIT = None     # When None, use matplotlib.is_interactive (if already imported)
 RECYCLE = True  # Keep reusing the same window instead of creating new ones
-DETACH = False  # Create a fully autonomous GUI thread
 
 # Global ViewControler for instance recycling
 APP = None
@@ -42,65 +41,6 @@ class ViewController(object):
             while self._view.isVisible():
                 APP.processEvents(QtCore.QEventLoop.AllEvents |
                                   QtCore.QEventLoop.WaitForMoreEvents)
-
-
-class DetachedViewController(threading.Thread):
-    def __init__(self):
-        super(DetachedViewController, self).__init__()
-        self._view = None
-        self._data = None
-        self._lock = threading.Condition(threading.Lock())
-        self._lock.acquire()
-
-    def is_detached(self):
-        with self._lock:
-            return super(DetachedViewController, self).is_alive()
-
-    def run(self):
-        global APP
-        APP = QtWidgets.QApplication.instance()
-        if APP is not None:
-            warnings.warn("cannot detach: QApplication already initialized",
-                          category=RuntimeWarning)
-            self._lock.release()
-            return
-        APP = QtWidgets.QApplication([])
-        self._view = Viewer()
-        self._lock.release()
-        while True:
-            with self._lock:
-                if self._data == False:
-                    del APP
-                    return
-                elif self._data is not None:
-                    if not self._data['recycle']:
-                        self._view = Viewer()
-                    self._view.view(self._data['data'], **self._data['view_kwargs'])
-                    self._data = None
-            APP.processEvents(QtCore.QEventLoop.AllEvents |
-                              QtCore.QEventLoop.WaitForMoreEvents)
-            with self._lock:
-                self._lock.notify()
-
-    def _notify(self):
-        global APP
-        APP.postEvent(self._view, QtCore.QEvent(0))
-
-    def exit(self):
-        with self._lock:
-            self._data = False
-            self._notify()
-        self.join()
-
-    def view(self, data, view_kwargs, wait, recycle):
-        with self._lock:
-            self._data = {'data': data, 'recycle': recycle,
-                          'view_kwargs': view_kwargs}
-            self._notify()
-        if wait:
-            with self._lock:
-                while not self._view.closed:
-                    self._lock.wait()
 
 
 def _varname_in_stack(var, skip):
@@ -158,12 +98,10 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
     recycle: Recycle the previous window instead of creating a new one. The
              default is True, and can also be set through ``gtabview.RECYCLE``.
 
-    detach: Create a fully detached GUI thread for interactive use (note: this
-            is *not* necessary if matplotlib is loaded). The default is False,
-            and can also be set through ``gtabview.DETACH``.
+    detach: Ignored for backward compatibility.
 
     """
-    global WAIT, RECYCLE, DETACH, VIEW
+    global WAIT, RECYCLE, VIEW
 
     model = read_model(data, enc=enc, delimiter=delimiter, hdr_rows=hdr_rows,
                        idx_cols=idx_cols, sheet_index=sheet_index,
@@ -173,13 +111,19 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
                       category=RuntimeWarning)
         return None
 
+    # install gui hooks in ipython/jupyter
+    if 'IPython' in sys.modules:
+        from IPython import get_ipython
+        ip = get_ipython()
+        if ip is not None:
+            ip.enable_gui('qt')
+
     # setup defaults
     if wait is None: wait = WAIT
     if recycle is None: recycle = RECYCLE
-    if detach is None: detach = DETACH
     if wait is None:
         if 'matplotlib' not in sys.modules:
-            wait = not bool(detach)
+            wait = True
         else:
             import matplotlib.pyplot as plt
             wait = not plt.isinteractive()
@@ -193,17 +137,7 @@ def view(data, enc=None, start_pos=None, delimiter=None, hdr_rows=None,
 
     # create a view controller
     if VIEW is None:
-        if not detach:
-            VIEW = ViewController()
-        else:
-            VIEW = DetachedViewController()
-            VIEW.setDaemon(True)
-            VIEW.start()
-            if VIEW.is_detached():
-                atexit.register(VIEW.exit)
-            else:
-                VIEW = None
-                return None
+        VIEW = ViewController()
 
     # actually show the data
     view_kwargs = {'hdr_rows': hdr_rows, 'idx_cols': idx_cols,

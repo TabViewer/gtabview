@@ -67,31 +67,28 @@ DataFrames, such as MultiIndexes and level names:
 		      columns=['a', 'b', 'c'], index=['x', 'y'])
     view(df)
 
-`gtabview` is designed to integrate correctly with matplotlib. If you're
-using `gtabview` with matplotlib either directly or indirectly (for
-example, using the Pandas visualization API or Seaborn), be sure to
-include matplotlib *first* to correctly initialize `gtabview`.
+`gtabview` is designed to integrate correctly with `IPython`, `Jupyter`
+and `matplotlib`. If you're using `gtabview` with `matplotlib` either
+directly or indirectly (for example, using the Pandas visualization API
+or Seaborn), be sure to include `matplotlib` *first* to correctly
+initialize `gtabview`.
 
-`gtabview` will also use matplotlib's ``interactive`` setting to
-determine the default behavior of the data window: when interactive,
-calls to ``view()`` will not block, and will keep recycling the same
-window.
+`gtabview` will then automatically use `matplotlib`'s ``interactive``
+setting to determine the default behavior of the data window: when
+interactive, calls to ``view()`` will not block, and will keep recycling
+the same window.
 
-To use `gtabview` in a Python Notebook with inline graphics, you'll
-probably want to force the detached behavior. In the first cell of your
-notebook, initialize both `gtabview` and `matplotlib` as follows:
+In plain `IPython`/Python ``view()`` defaults to blocking.
 
-.. code:: python
+You can change this behavior in `IPython`/Python with the ``view(...,
+wait=False)`` for each call, or by changing the module default::
 
   import gtabview
-  gtabview.DETACH = True
-  from gtabview import view
-  %matplotlib inline
+  gtabview.WAIT = False
 
-When using ``view``, a *separate* data window will show. The window can
-be kept around or closed, but will only be refreshed when evaluating the
-cell again. Jupyter is currently known not to work properly
-(https://github.com/TabViewer/gtabview/issues/32).
+In a `Jupyter` notebook a *separate* data window will show. The window
+can be kept around or closed, but will only be refreshed when evaluating
+the cell again.
 
 
 Requirements and installation
