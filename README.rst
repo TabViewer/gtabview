@@ -19,7 +19,7 @@ If xlrd_ is installed, Excel files can be read directly::
 
   gtabview file.xls[x]
 
-.. _xlrd: https://pypi.python.org/pypi/xlrd
+.. _xlrd: https://pypi.org/project/xlrd/
 
 
 Usage as a module
@@ -99,7 +99,7 @@ Requirements and installation
 -----------------------------
 
 `gtabview` is available directly on the `Python Package Index
-<https://pypi.python.org/pypi/gtabview>`_.
+<https://pypi.org/project/gtabview/>`_.
 
 `gtabview` requires:
 
