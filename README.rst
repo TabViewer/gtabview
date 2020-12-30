@@ -99,7 +99,8 @@ Requirements and installation
 -----------------------------
 
 `gtabview` is available directly on the `Python Package Index
-<https://pypi.org/project/gtabview/>`_.
+<https://pypi.org/project/gtabview/>`_ and on `conda-forge
+<https://anaconda.org/conda-forge/gtabview>`_.
 
 `gtabview` requires:
 
@@ -116,7 +117,12 @@ Then download and install simply via pip::
 
   pip install gtabview
 
-Install ``xlrd`` if direct reading of Excel files is desired::
+Or with conda::
+
+  conda install -c conda-forge gtabview
+
+You explicitly need to install ``xlrd`` if direct reading of Excel files
+is desired::
 
   pip install xlrd
 
