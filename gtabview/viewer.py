@@ -377,7 +377,10 @@ class ExtTableView(QtWidgets.QWidget):
                 lm_elapsed = (lm_now - lm_start) * 1000
                 if lm_elapsed >= limit_ms:
                     break
-                lm_row = int((row / lm_elapsed) * limit_ms)
+                if lm_elapsed < 1:
+                    lm_row = lm_row * 2
+                else:
+                    lm_row = int((row / lm_elapsed) * limit_ms)
         return max_width
 
     def _resizeColumnToContents(self, header, data, col, limit_ms):
