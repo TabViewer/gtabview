@@ -1,3 +1,9 @@
+gtabview 0.10.1
+---------------
+
+* Fixes an issue with column autosizing leading to a division by zero on
+  some systems.
+
 gtabview 0.10
 -------------
 

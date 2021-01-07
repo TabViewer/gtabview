@@ -131,5 +131,5 @@ License
 -------
 
 | gtabview is distributed under the MIT license (see ``LICENSE.txt``)
-| Copyright(c) 2014-2020: wave++ "Yuri D'Elia" <wavexx@thregr.org>
+| Copyright(c) 2014-2021: wave++ "Yuri D'Elia" <wavexx@thregr.org>
 | Copyright(c) 2014-2015: Scott Hansen <firecat4153@gmail.com>
